@@ -43,12 +43,12 @@
     "noInstall": false,
     "overwrite": false,
     "importAlias": true,
-    "packageManager": "bun",
+    "packageManager": "npm",
     "eas": false
   },
   "packageManager": {
-    "type": "bun",
-    "version": "1.0.0"
+    "type": "npm",
+    "version": "10.9.2"
   },
   "os": {
     "type": "Darwin",

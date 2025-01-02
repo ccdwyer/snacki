@@ -1,0 +1,12 @@
+{
+    "cSpell.words": [
+        "nativewindui",
+        "supabase"
+    ],
+    "workbench.colorCustomizations": {
+        "titleBar.activeForeground": "#000",
+        "titleBar.inactiveForeground": "#000000cc",
+        "titleBar.activeBackground": "#2cff87",
+        "titleBar.inactiveBackground": "#2cff37cc"
+    },
+}

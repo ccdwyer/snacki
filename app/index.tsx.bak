@@ -15,8 +15,11 @@ import {
   useWindowDimensions,
   View,
   Alert,
+  Image,
+  Dimensions,
 } from 'react-native';
-import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
+import Svg from 'react-native-svg';
 
 import { ActivityIndicator } from '~/components/nativewindui/ActivityIndicator';
 import { Avatar, AvatarFallback, AvatarImage } from '~/components/nativewindui/Avatar';
@@ -29,21 +32,82 @@ import { Text } from '~/components/nativewindui/Text';
 import { Toggle } from '~/components/nativewindui/Toggle';
 import { useColorScheme } from '~/lib/useColorScheme';
 import { useHeaderSearchBar } from '~/lib/useHeaderSearchBar';
+import Icons from '~/components/Icons';
+import { GooglePlacesAutocomplete } from 'react-native-google-places-autocomplete';
+
+const getGeolocation = async (location: string) => {
+  const response = await fetch(`https://maps.googleapis.com/maps/api/geocode/json?address=${location}&key=${process.env.EXPO_PUBLIC_GOOGLE_PLACES_API_KEY}`);
+  const data = await response.json();
+  console.log(JSON.stringify(data, null, 2));
+  return data;
+}
 
 export default function Home() {
-  const searchValue = useHeaderSearchBar({ hideWhenScrolling: COMPONENTS.length === 0 });
+  const [gpsCoordinates, setGpsCoordinates] = React.useState<{ latitude: number; longitude: number } | null>(null);
+  // const searchValue = useHeaderSearchBar({ hideWhenScrolling: COMPONENTS.length === 0 });
 
-  const data = searchValue
-    ? COMPONENTS.filter((c) => c.name.toLowerCase().includes(searchValue.toLowerCase()))
-    : COMPONENTS;
+  // const data = searchValue
+  //   ? COMPONENTS.filter((c) => c.name.toLowerCase().includes(searchValue.toLowerCase()))
+  //   : COMPONENTS;
 
   return (
     <>
       <Stack.Screen options={{ title: 'Snacki App' }} />
-      <View className="flex-1 items-center justify-center gap-4">
-        <Text variant="largeTitle">Coming to the App Store and Google Play Store January 2025</Text>
-        <Text variant="body">Discover New Food Trucks near you</Text>
-      </View>
+      <SafeAreaView className="items-center justify-center gap-4">
+        <Image
+          source={require('../assets/snacki-truck.png')}
+          style={{ resizeMode: 'contain', height: 100, width: 100 }}
+        />
+        <Text variant="largeTitle" className="text-center">Coming January 2025</Text>
+        <View className="items-center justify-center gap-1">
+          <Text variant="footnote" color="tertiary" className="text-center">Discover food trucks near you</Text>
+          <Text variant="footnote" color="tertiary" className="text-center">Advertise your food truck</Text>
+          <Text variant="footnote" color="tertiary" className="text-center">Book a food truck for your next event</Text>
+          <Text variant="footnote" color="tertiary" className="text-center">Create loyalty programs</Text>
+        </View>
+        <View className="flex-row gap-4 items-center">
+          <Image source={require('../assets/AppStoreDownload.png')} style={{ height: 40, width: 135, resizeMode: 'stretch' }}/>
+          <Image source={require('../assets/PlayStoreDownload.png')} style={{ height: 40, width: 135, resizeMode: 'stretch' }}/>
+        </View>
+        <View className="w-full">
+
+        </View>
+      </SafeAreaView>
+
+      <GooglePlacesAutocomplete
+            placeholder='Search'
+            onPress={async (data, details = null) => {
+
+              console.log(JSON.stringify(data, null, 2));
+              console.log(JSON.stringify(details, null, 2));
+              // 'details' is provided when fetchDetails = true
+              const geoLocation = await getGeolocation(data.description);
+              setGpsCoordinates({
+                latitude: geoLocation.results[0].geometry.location.lat,
+                longitude: geoLocation.results[0].geometry.location.lng,
+              });
+            }}
+            query={{
+              key: process.env.EXPO_PUBLIC_GOOGLE_PLACES_API_KEY,
+              language: 'en',
+            }}
+            styles={{
+              textInputContainer: {
+                paddingHorizontal: 10,
+              },
+              poweredContainer: {
+                display: 'none',
+              },
+              row: {
+                width: Dimensions.get('window').width,
+              },
+              container: {
+                flex: 0,
+              }
+            }}
+          />
+        {gpsCoordinates && (<View className="p-8"><Text>Latitude: {gpsCoordinates?.latitude}</Text>
+        <Text>Longitude: {gpsCoordinates?.longitude}</Text></View>)}
     </>
   );
 }

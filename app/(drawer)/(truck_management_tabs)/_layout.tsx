@@ -10,16 +10,23 @@ export default function TabLayout() {
         tabBarActiveTintColor: 'black',
       }}>
       <Tabs.Screen
-        name="index"
+        name="(trucks)"
         options={{
-          title: 'Tab One',
+          title: 'Trucks',
           tabBarIcon: ({ color }) => <TabBarIcon name="code" color={color} />,
         }}
       />
       <Tabs.Screen
-        name="two"
+        name="(events)"
         options={{
-          title: 'Tab Two',
+          title: 'Events',
+          tabBarIcon: ({ color }) => <TabBarIcon name="code" color={color} />,
+        }}
+      />
+      <Tabs.Screen
+        name="(messages)"
+        options={{
+          title: 'Messages',
           tabBarIcon: ({ color }) => <TabBarIcon name="code" color={color} />,
         }}
       />

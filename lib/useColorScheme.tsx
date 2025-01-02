@@ -9,6 +9,7 @@ function useColorScheme() {
   const { colorScheme, setColorScheme: setNativeWindColorScheme } = useNativewindColorScheme();
 
   async function setColorScheme(colorScheme: 'light' | 'dark') {
+    if (Platform.OS === 'web') return;
     setNativeWindColorScheme(colorScheme);
     if (Platform.OS !== 'android') return;
     try {
@@ -23,8 +24,8 @@ function useColorScheme() {
   }
 
   return {
-    colorScheme: colorScheme ?? 'light',
-    isDarkColorScheme: colorScheme === 'dark',
+    colorScheme: Platform.OS === 'web' ? 'light' : (colorScheme ?? 'light'),
+    isDarkColorScheme: Platform.OS === 'web' ? false : colorScheme === 'dark',
     setColorScheme,
     toggleColorScheme,
     colors: COLORS[colorScheme ?? 'light'],
