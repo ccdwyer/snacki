@@ -4,6 +4,7 @@ import { FlatList, View, Image, Pressable } from 'react-native';
 import { Container } from '~/components/Container';
 import { Text } from '~/components/nativewindui/Text';
 import { Avatar } from '~/components/nativewindui/Avatar';
+import { ConversationListItem } from '~/components/Entities/ConversationListItem';
 
 export interface Conversation {
     id: string;
@@ -293,38 +294,10 @@ const AvatarWithFallback = ({ participant }: { participant: Conversation['partic
 const ConversationList = () => {
     const conversations = useGetConversations();
 
-    const renderItem = ({ item }: { item: Conversation }) => {
-        const lastMessage = item.messages[item.messages.length - 1];
-        return (
-            <Pressable
-                onPress={() =>
-                    router.push({
-                        pathname: '/(drawer)/(user_tabs)/conversations/[id]',
-                        params: { id: item.id },
-                    })
-                }
-                className="active:bg-gray-100/50 dark:active:bg-gray-800/50">
-                <View className="flex-row items-center border-b border-gray-200/60 px-2 py-3 dark:border-gray-800">
-                    <View className="mr-3">
-                        <AvatarWithFallback participant={item.participants[0]} />
-                    </View>
-                    <View className="flex-1">
-                        <Text variant="title3" className="font-semibold">
-                            {item.participants.map((p) => p.name).join(', ')}
-                        </Text>
-                        <Text variant="body" className="mt-0.5 text-gray-600" numberOfLines={1}>
-                            {lastMessage.content}
-                        </Text>
-                    </View>
-                </View>
-            </Pressable>
-        );
-    };
-
     return (
         <FlatList
             data={conversations}
-            renderItem={renderItem}
+            renderItem={({ item }) => <ConversationListItem conversation={item} />}
             keyExtractor={(item) => item.id}
             contentContainerStyle={{ paddingVertical: 8 }}
         />

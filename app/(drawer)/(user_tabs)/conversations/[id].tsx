@@ -13,6 +13,7 @@ import { Container } from '~/components/Container';
 import { Text } from '~/components/nativewindui/Text';
 import { mockConversations } from './index';
 import { FontAwesome } from '@expo/vector-icons';
+import { MessageListItem } from '~/components/Entities/MessageListItem';
 
 export default function ConversationScreen() {
     const { id } = useLocalSearchParams<{ id: string }>();
@@ -35,34 +36,7 @@ export default function ConversationScreen() {
 
     const renderMessage = ({ item: message }: { item: (typeof conversation.messages)[0] }) => {
         const isCurrentUser = message.sender.id === conversation.participants[0].id;
-
-        return (
-            <View className={`mb-2 flex-row ${isCurrentUser ? 'justify-end' : 'justify-start'}`}>
-                <View
-                    className={`max-w-[80%] rounded-2xl border px-4 py-2 ${
-                        isCurrentUser
-                            ? isDark
-                                ? 'border-[#00D6C8] bg-transparent'
-                                : 'border-transparent bg-[#00D6C8]'
-                            : isDark
-                              ? 'border-[#9B6B9E] bg-transparent'
-                              : 'border-transparent bg-[#9B6B9E]'
-                    }`}>
-                    <Text
-                        className={
-                            isCurrentUser
-                                ? isDark
-                                    ? 'text-white'
-                                    : 'text-white'
-                                : isDark
-                                  ? 'text-white'
-                                  : 'text-white'
-                        }>
-                        {message.content}
-                    </Text>
-                </View>
-            </View>
-        );
+        return <MessageListItem message={message} isCurrentUser={isCurrentUser} />;
     };
 
     return (
