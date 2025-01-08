@@ -17,10 +17,10 @@ export interface Truck {
         startDate: string;
         endDate: string;
         location: {
-        latitude: number;
-        longitude: number;
-        name: string;
-        address: string;
+            latitude: number;
+            longitude: number;
+            name: string;
+            address: string;
         };
     }[];
     isFavorite: boolean;

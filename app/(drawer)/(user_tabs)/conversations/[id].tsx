@@ -1,3 +1,4 @@
+import { FontAwesome } from '@expo/vector-icons';
 import { Stack, useLocalSearchParams } from 'expo-router';
 import React, { useState } from 'react';
 import {
@@ -9,11 +10,12 @@ import {
     TouchableOpacity,
     useColorScheme,
 } from 'react-native';
-import { Container } from '~/components/Container';
-import { Text } from '~/components/nativewindui/Text';
+
 import { mockConversations } from './index';
-import { FontAwesome } from '@expo/vector-icons';
+
+import { Container } from '~/components/Container';
 import { MessageListItem } from '~/components/Entities/MessageListItem';
+import { Text } from '~/components/nativewindui/Text';
 
 export default function ConversationScreen() {
     const { id } = useLocalSearchParams<{ id: string }>();

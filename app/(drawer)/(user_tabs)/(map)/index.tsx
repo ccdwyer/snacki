@@ -1,8 +1,7 @@
 import { Stack } from 'expo-router';
+import MapView, { Marker } from 'react-native-maps';
 
 import { Container } from '~/components/Container';
-import { Text } from '~/components/nativewindui/Text';
-import MapView, { Marker } from 'react-native-maps';
 
 const region = {
     latitude: 27.27327,

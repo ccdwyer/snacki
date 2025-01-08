@@ -1,13 +1,15 @@
 {
-    "cSpell.words": [
-        "aesjs",
-        "nativewindui",
-        "supabase"
-    ],
+    "cSpell.words": ["aesjs", "nativewindui", "supabase"],
     "workbench.colorCustomizations": {
         "titleBar.activeForeground": "#000",
         "titleBar.inactiveForeground": "#000000cc",
         "titleBar.activeBackground": "#2cff87",
         "titleBar.inactiveBackground": "#2cff37cc"
     },
+    "editor.codeActionsOnSave": {
+        "source.fixAll": "always",
+        "source.removeUnusedImports": "always"
+    },
+    "editor.tabSize": 4,
+    "editor.detectIndentation": false
 }

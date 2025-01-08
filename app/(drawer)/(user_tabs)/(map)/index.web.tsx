@@ -1,7 +1,6 @@
 import { Stack } from 'expo-router';
 
 import { Container } from '~/components/Container';
-import { ScreenContent } from '~/components/ScreenContent';
 import { Text } from '~/components/nativewindui/Text';
 const region = {
     latitude: 27.27327,

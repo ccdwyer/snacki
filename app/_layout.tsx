@@ -1,20 +1,21 @@
-import '../global.css';
 import 'expo-dev-client';
+import '../global.css';
 
 import { ActionSheetProvider } from '@expo/react-native-action-sheet';
+import { PermanentMarker_400Regular, useFonts } from '@expo-google-fonts/permanent-marker';
 import { BottomSheetModalProvider } from '@gorhom/bottom-sheet';
 import { ThemeProvider as NavThemeProvider } from '@react-navigation/native';
 import { PortalHost } from '@rn-primitives/portal';
 import { Stack } from 'expo-router';
-import { StatusBar } from 'expo-status-bar';
 import * as SplashScreen from 'expo-splash-screen';
+import { StatusBar } from 'expo-status-bar';
+import { useEffect } from 'react';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { KeyboardProvider } from 'react-native-keyboard-controller';
-import { PermanentMarker_400Regular, useFonts } from '@expo-google-fonts/permanent-marker';
+
 import { ThemeToggle } from '~/components/ThemeToggle';
 import { useColorScheme, useInitialAndroidBarSync } from '~/lib/useColorScheme';
 import { NAV_THEME } from '~/theme';
-import { useEffect } from 'react';
 
 export {
     // Catch any errors thrown by the Layout component.

@@ -1,10 +1,10 @@
-import { Stack, router } from 'expo-router';
+import { Stack } from 'expo-router';
 import React from 'react';
-import { FlatList, View, Image, Pressable } from 'react-native';
+import { FlatList, View, Image } from 'react-native';
+
 import { Container } from '~/components/Container';
-import { Text } from '~/components/nativewindui/Text';
-import { Avatar } from '~/components/nativewindui/Avatar';
 import { ConversationListItem } from '~/components/Entities/ConversationListItem';
+import { Text } from '~/components/nativewindui/Text';
 
 export interface Conversation {
     id: string;

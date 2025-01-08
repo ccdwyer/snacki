@@ -1,7 +1,8 @@
 import React from 'react';
 import { View, useColorScheme } from 'react-native';
-import { Text } from '~/components/nativewindui/Text';
+
 import type { Conversation } from '~/app/(drawer)/(user_tabs)/conversations';
+import { Text } from '~/components/nativewindui/Text';
 
 type MessageListItemProps = {
     message: Conversation['messages'][0];

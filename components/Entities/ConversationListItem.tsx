@@ -1,8 +1,9 @@
+import { router } from 'expo-router';
 import React from 'react';
 import { View, Pressable, Image } from 'react-native';
-import { router } from 'expo-router';
-import { Text } from '~/components/nativewindui/Text';
+
 import type { Conversation } from '~/app/(drawer)/(user_tabs)/conversations';
+import { Text } from '~/components/nativewindui/Text';
 
 type ConversationListItemProps = {
     conversation: Conversation;
