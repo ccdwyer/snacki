@@ -15,7 +15,8 @@ const IOS_SYSTEM_COLORS = {
         root: 'rgb(255, 255, 255)',
         card: 'rgb(255, 255, 255)',
         destructive: 'rgb(255, 56, 43)',
-        primary: '#00D6C8', // '#FE5161',
+        primary: '#00D6C8',
+        complementary: '#9B6B9E',
     },
     dark: {
         grey6: 'rgb(21, 21, 24)',
@@ -29,7 +30,8 @@ const IOS_SYSTEM_COLORS = {
         root: 'rgb(0, 0, 0)',
         card: 'rgb(28, 28, 30)',
         destructive: 'rgb(254, 67, 54)',
-        primary: '#00D6C8', // '#FE5161',
+        primary: '#00D6C8',
+        complementary: '#9B6B9E',
     },
 } as const;
 
