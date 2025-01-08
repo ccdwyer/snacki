@@ -1,15 +1,15 @@
 import { Stack } from 'expo-router';
 
 import { Container } from '~/components/Container';
-import { ScreenContent } from '~/components/ScreenContent';
-import MapView from 'react-native-maps';
+import { Text } from '~/components/nativewindui/Text';
+
 export default function EventForm() {
-  return (
-    <>
-      <Stack.Screen options={{ title: 'Events' }} />
-      <Container>
-        <MapView style={{ flex: 1 }} />
-      </Container>
-    </>
-  );
+    return (
+        <>
+            <Stack.Screen options={{ title: 'Events' }} />
+            <Container>
+                <Text>Account</Text>
+            </Container>
+        </>
+    );
 }
