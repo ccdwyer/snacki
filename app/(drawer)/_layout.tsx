@@ -13,6 +13,7 @@ const DrawerLayout = () => {
             <Drawer.Screen
                 name="(user_tabs)"
                 options={{
+                    headerShown: false,
                     headerTitle: 'Find Trucks',
                     drawerLabel: 'Find Trucks',
                     drawerIcon: ({ size, color }) => (

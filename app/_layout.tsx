@@ -14,6 +14,7 @@ import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { KeyboardProvider } from 'react-native-keyboard-controller';
 
 import { ThemeToggle } from '~/components/ThemeToggle';
+import { useDeepLinks } from '~/hooks/useDeepLinks';
 import { useColorScheme, useInitialAndroidBarSync } from '~/lib/useColorScheme';
 import { NAV_THEME } from '~/theme';
 
@@ -22,10 +23,37 @@ export {
     ErrorBoundary,
 } from 'expo-router';
 
+// Configure deep linking
+export const scheme = 'snacki';
+
+// Configure routes that can be deep linked to
+export const linking = {
+    prefixes: ['snacki://', 'https://snacki.app'],
+    config: {
+        initialRouteName: '(drawer)',
+        screens: {
+            '(drawer)': {
+                screens: {
+                    auth: {
+                        screens: {
+                            'reset-password': 'auth/reset-password',
+                            'forgot-password': 'auth/forgot-password',
+                            'sign-in': 'auth/sign-in',
+                            'create-account': 'auth/create-account',
+                            index: '',
+                        },
+                    },
+                },
+            },
+        },
+    },
+};
+
 SplashScreen.preventAutoHideAsync();
 
 export default function RootLayout() {
     useInitialAndroidBarSync();
+    useDeepLinks();
     const { colorScheme, isDarkColorScheme } = useColorScheme();
 
     const [loaded, error] = useFonts({

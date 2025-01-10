@@ -1,18 +1,55 @@
+import { User as SupabaseUser } from '@supabase/supabase-js';
 import { atom, useAtom } from 'jotai';
-import { useCallback } from 'react';
+import { useCallback, useEffect } from 'react';
+
+import { supabaseClient } from '../clients/supabase';
 
 export type User = {
-    name: string;
-    refreshToken: string;
-    accessToken: string;
-};
+    id: string;
+    email?: string;
+    user_metadata: {
+        first_name?: string;
+        last_name?: string;
+    };
+    app_metadata: {
+        provider?: string;
+    };
+    aud: string;
+    created_at: string;
+} & Omit<SupabaseUser, 'user_metadata' | 'app_metadata'>;
 
 export type UserAtomState = User | null;
 
 export const UserAtom = atom<UserAtomState>(null);
 
 export const useUserAtom = () => {
-    return useAtom(UserAtom);
+    const [user, setUser] = useAtom(UserAtom);
+
+    useEffect(() => {
+        // Initialize from stored session when atom is first used
+        supabaseClient.auth.getSession().then(({ data: { session } }) => {
+            if (session?.user) {
+                setUser(session.user as User);
+            }
+        });
+
+        // Listen for auth changes
+        const {
+            data: { subscription },
+        } = supabaseClient.auth.onAuthStateChange((event, session) => {
+            if (session?.user) {
+                setUser(session.user as User);
+            } else {
+                setUser(null);
+            }
+        });
+
+        return () => {
+            subscription.unsubscribe();
+        };
+    }, [setUser]);
+
+    return [user, setUser] as const;
 };
 
 export const useSignIn = (user: User) => {
@@ -24,7 +61,26 @@ export const useSignIn = (user: User) => {
 
 export const useSignOut = () => {
     const [, set] = useUserAtom();
-    return useCallback(() => {
+    return useCallback(async () => {
+        await supabaseClient.auth.signOut();
         set(null);
     }, [set]);
+};
+
+export const useForgotPassword = () => {
+    return useCallback(async (email: string) => {
+        const { error } = await supabaseClient.auth.resetPasswordForEmail(email, {
+            redirectTo: process.env.EXPO_PUBLIC_PASSWORD_RESET_URL,
+        });
+        if (error) throw error;
+    }, []);
+};
+
+export const useUpdatePassword = () => {
+    return useCallback(async (newPassword: string) => {
+        const { error } = await supabaseClient.auth.updateUser({
+            password: newPassword,
+        });
+        if (error) throw error;
+    }, []);
 };
