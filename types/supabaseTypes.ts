@@ -9,6 +9,95 @@ export type Json =
 export type Database = {
   public: {
     Tables: {
+      coupon_redemptions: {
+        Row: {
+          cost_in_points: number
+          coupon_id: string
+          created_at: string
+          id: string
+          redeemed_at: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          cost_in_points: number
+          coupon_id: string
+          created_at?: string
+          id?: string
+          redeemed_at?: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          cost_in_points?: number
+          coupon_id?: string
+          created_at?: string
+          id?: string
+          redeemed_at?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "coupon_redemptions_coupon_id_fkey"
+            columns: ["coupon_id"]
+            isOneToOne: false
+            referencedRelation: "coupons"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "coupon_redemptions_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      coupons: {
+        Row: {
+          available_quantity: number | null
+          cost_in_points: number
+          created_at: string
+          description: string | null
+          food_truck_id: string
+          id: string
+          name: string
+          per_person_limit: number | null
+          updated_at: string
+        }
+        Insert: {
+          available_quantity?: number | null
+          cost_in_points: number
+          created_at?: string
+          description?: string | null
+          food_truck_id: string
+          id?: string
+          name: string
+          per_person_limit?: number | null
+          updated_at?: string
+        }
+        Update: {
+          available_quantity?: number | null
+          cost_in_points?: number
+          created_at?: string
+          description?: string | null
+          food_truck_id?: string
+          id?: string
+          name?: string
+          per_person_limit?: number | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "coupons_food_truck_id_fkey"
+            columns: ["food_truck_id"]
+            isOneToOne: false
+            referencedRelation: "food_trucks"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       cuisine_types: {
         Row: {
           created_at: string
