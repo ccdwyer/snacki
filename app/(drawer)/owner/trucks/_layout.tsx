@@ -25,6 +25,18 @@ export default function TabLayout() {
                     title: 'Truck Form',
                 }}
             />
+            <Stack.Screen
+                name="create"
+                options={{
+                    title: 'Create Truck',
+                }}
+            />
+            <Stack.Screen
+                name="[id]/update"
+                options={{
+                    title: 'Update Truck',
+                }}
+            />
         </Stack>
     );
 }

@@ -3,6 +3,7 @@ import React from 'react';
 import { ActivityIndicator, Platform, Pressable, PressableProps, StyleSheet } from 'react-native';
 
 import { cn } from '../../../lib/utils';
+import { Text } from '../Text';
 
 const buttonVariants = cva(
     'items-center justify-center rounded-lg active:opacity-70 disabled:opacity-50',
@@ -54,22 +55,44 @@ export function Button({
         },
     ]);
 
+    const getContrastColor = () => {
+        switch (variant) {
+            case 'primary':
+                return 'text-white';
+            case 'secondary':
+            case 'tonal':
+            case 'plain':
+            default:
+                return 'text-primary';
+        }
+    };
+
+    const renderChildren = () => {
+        if (loading) {
+            return (
+                <ActivityIndicator
+                    color={Platform.select({
+                        ios: variant === 'primary' ? '#FFFFFF' : '#007AFF',
+                        android: variant === 'primary' ? '#FFFFFF' : '#2196F3',
+                    })}
+                />
+            );
+        }
+
+        if (typeof children === 'string') {
+            return <Text className={cn(getContrastColor())}>{children}</Text>;
+        }
+
+        return children;
+    };
+
     return (
         <Pressable
             className={cn(buttonVariants({ variant, size, className }))}
             disabled={disabled || loading}
             style={combinedStyle}
             {...props}>
-            {loading ? (
-                <ActivityIndicator
-                    color={Platform.select({
-                        ios: variant === 'primary' ? '#000000' : '#007AFF',
-                        android: variant === 'primary' ? '#000000' : '#2196F3',
-                    })}
-                />
-            ) : (
-                children
-            )}
+            {renderChildren()}
         </Pressable>
     );
 }

@@ -85,3 +85,25 @@ AppState.addEventListener('change', (state) => {
         supabaseClient.auth.stopAutoRefresh();
     }
 });
+
+// Function to ensure a user profile exists
+export const ensureProfile = async (user: { id: string }) => {
+    // Check if profile exists
+    const { data: existingProfile } = await supabaseClient
+        .from('profiles')
+        .select('id')
+        .eq('auth_user_id', user.id)
+        .single();
+
+    if (!existingProfile) {
+        // Create profile if it doesn't exist
+        const { error } = await supabaseClient.from('profiles').insert({
+            auth_user_id: user.id,
+        });
+
+        if (error) {
+            console.error('Error creating profile:', error);
+            throw error;
+        }
+    }
+};
