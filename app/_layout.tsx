@@ -13,6 +13,7 @@ import { useEffect } from 'react';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { KeyboardProvider } from 'react-native-keyboard-controller';
 
+import { QueryClientProvider } from '~/clients/query';
 import { ThemeToggle } from '~/components/ThemeToggle';
 import { useDeepLinks } from '~/hooks/useDeepLinks';
 import { useColorScheme, useInitialAndroidBarSync } from '~/lib/useColorScheme';
@@ -80,21 +81,23 @@ export default function RootLayout() {
             />
             {/* WRAP YOUR APP WITH ANY ADDITIONAL PROVIDERS HERE */}
             {/* <ExampleProvider> */}
-            <KeyboardProvider statusBarTranslucent navigationBarTranslucent>
-                <GestureHandlerRootView style={{ flex: 1 }}>
-                    <BottomSheetModalProvider>
-                        <ActionSheetProvider>
-                            <NavThemeProvider value={NAV_THEME[colorScheme]}>
-                                <Stack screenOptions={SCREEN_OPTIONS}>
-                                    <Stack.Screen name="(drawer)" options={DRAWER_OPTIONS} />
-                                    <Stack.Screen name="modal" options={MODAL_OPTIONS} />
-                                </Stack>
-                                <PortalHost />
-                            </NavThemeProvider>
-                        </ActionSheetProvider>
-                    </BottomSheetModalProvider>
-                </GestureHandlerRootView>
-            </KeyboardProvider>
+            <QueryClientProvider>
+                <KeyboardProvider statusBarTranslucent navigationBarTranslucent>
+                    <GestureHandlerRootView style={{ flex: 1 }}>
+                        <BottomSheetModalProvider>
+                            <ActionSheetProvider>
+                                <NavThemeProvider value={NAV_THEME[colorScheme]}>
+                                    <Stack screenOptions={SCREEN_OPTIONS}>
+                                        <Stack.Screen name="(drawer)" options={DRAWER_OPTIONS} />
+                                        <Stack.Screen name="modal" options={MODAL_OPTIONS} />
+                                    </Stack>
+                                    <PortalHost />
+                                </NavThemeProvider>
+                            </ActionSheetProvider>
+                        </BottomSheetModalProvider>
+                    </GestureHandlerRootView>
+                </KeyboardProvider>
+            </QueryClientProvider>
             {/* </ExampleProvider> */}
         </>
     );

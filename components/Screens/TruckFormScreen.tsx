@@ -3,9 +3,12 @@ import React, { useEffect, useState } from 'react';
 import { View, Alert, TextInput, ScrollView } from 'react-native';
 
 import { useUserAtom } from '~/atoms/AuthentictionAtoms';
-import { supabaseClient } from '~/clients/supabase';
 import { Button } from '~/components/nativewindui/Button';
 import { Text } from '~/components/nativewindui/Text';
+import {
+    useGetTrucksForCurrentUser,
+    useUpsertTruckForCurrentUser,
+} from '~/queries/UsersTruckQueries';
 
 type TruckFormProps = {
     mode: 'create' | 'update';
@@ -15,44 +18,40 @@ type TruckFormProps = {
 export default function TruckFormScreen({ mode, truckId }: TruckFormProps) {
     const router = useRouter();
     const [user] = useUserAtom();
-    const [loading, setLoading] = useState(false);
     const [name, setName] = useState('');
     const [description, setDescription] = useState('');
     const [address, setAddress] = useState('');
     const [rangeOfService, setRangeOfService] = useState('');
+    const {
+        mutate: upsertTruck,
+        isError,
+        isPending,
+    } = useUpsertTruckForCurrentUser({
+        onSuccess: () => {
+            router.push('/owner/trucks');
+        },
+    });
 
     useEffect(() => {
-        if (mode === 'update' && truckId) {
-            loadTruckData();
+        if (isError) {
+            Alert.alert('Error', 'Failed to save truck');
         }
-    }, [mode, truckId]);
+    }, [isError]);
 
-    const loadTruckData = async () => {
-        if (!truckId) return;
+    const { data: trucks, isLoading: loadingTrucks } = useGetTrucksForCurrentUser();
+    const loading = isPending || (mode === 'update' && loadingTrucks);
 
-        try {
-            setLoading(true);
-            const { data, error } = await supabaseClient
-                .from('food_trucks')
-                .select('*')
-                .eq('id', truckId)
-                .single();
-
-            if (error) throw error;
-
-            if (data) {
-                setName(data.name);
-                setDescription(data.description || '');
-                setAddress(data.address || '');
-                setRangeOfService(data.range_of_service?.toString() || '');
+    useEffect(() => {
+        if (mode === 'update' && truckId && trucks) {
+            const truck = trucks.find((t) => t.id === truckId);
+            if (truck) {
+                setName(truck.name);
+                setDescription(truck.description || '');
+                setAddress(truck.address || '');
+                setRangeOfService(truck.range_of_service?.toString() || '');
             }
-        } catch (error) {
-            Alert.alert('Error', 'Failed to load truck data');
-            console.error('Error loading truck:', error);
-        } finally {
-            setLoading(false);
         }
-    };
+    }, [mode, truckId, trucks]);
 
     const handleSubmit = async () => {
         if (!name.trim()) {
@@ -65,43 +64,15 @@ export default function TruckFormScreen({ mode, truckId }: TruckFormProps) {
             return;
         }
 
-        try {
-            setLoading(true);
-            const truckData = {
-                name: name.trim(),
-                description: description.trim() || null,
-                address: address.trim() || null,
-                range_of_service: rangeOfService ? parseInt(rangeOfService, 10) : null,
-                user_id: user.id,
-            };
+        const truckData = {
+            name: name.trim(),
+            description: description.trim() || '',
+            address: address.trim() || '',
+            range_of_service: rangeOfService ? parseInt(rangeOfService, 10) : null,
+            user_id: user.id,
+        };
 
-            let error;
-            if (mode === 'create') {
-                const { error: createError } = await supabaseClient
-                    .from('food_trucks')
-                    .insert([truckData]);
-                error = createError;
-            } else {
-                const { error: updateError } = await supabaseClient
-                    .from('food_trucks')
-                    .update(truckData)
-                    .eq('id', truckId);
-                error = updateError;
-            }
-
-            if (error) throw error;
-
-            Alert.alert(
-                'Success',
-                `Food truck ${mode === 'create' ? 'created' : 'updated'} successfully`
-            );
-            router.back();
-        } catch (error) {
-            Alert.alert('Error', `Failed to ${mode} food truck`);
-            console.error('Error saving truck:', error);
-        } finally {
-            setLoading(false);
-        }
+        upsertTruck(truckData);
     };
 
     return (
@@ -115,7 +86,7 @@ export default function TruckFormScreen({ mode, truckId }: TruckFormProps) {
                         className="w-full rounded-lg border border-gray-300 bg-gray-100 px-4 py-3"
                         value={name}
                         onChangeText={setName}
-                        editable={!loading}
+                        editable={!loadingTrucks && !loading}
                         placeholder="Enter truck name"
                     />
                 </View>
@@ -130,7 +101,7 @@ export default function TruckFormScreen({ mode, truckId }: TruckFormProps) {
                         onChangeText={setDescription}
                         multiline
                         numberOfLines={3}
-                        editable={!loading}
+                        editable={!loadingTrucks && !loading}
                         placeholder="Enter description"
                         textAlignVertical="top"
                     />
@@ -144,7 +115,7 @@ export default function TruckFormScreen({ mode, truckId }: TruckFormProps) {
                         className="w-full rounded-lg border border-gray-300 bg-gray-100 px-4 py-3"
                         value={address}
                         onChangeText={setAddress}
-                        editable={!loading}
+                        editable={!loadingTrucks && !loading}
                         placeholder="Enter address"
                     />
                 </View>
@@ -158,12 +129,15 @@ export default function TruckFormScreen({ mode, truckId }: TruckFormProps) {
                         value={rangeOfService}
                         onChangeText={setRangeOfService}
                         keyboardType="numeric"
-                        editable={!loading}
+                        editable={!loadingTrucks && !loading}
                         placeholder="Enter range of service"
                     />
                 </View>
 
-                <Button variant="primary" onPress={handleSubmit} disabled={loading}>
+                <Button
+                    variant="primary"
+                    onPress={handleSubmit}
+                    disabled={loadingTrucks || loading}>
                     <Text>{mode === 'create' ? 'Create Food Truck' : 'Update Food Truck'}</Text>
                 </Button>
             </View>

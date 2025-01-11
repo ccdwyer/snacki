@@ -6,6 +6,8 @@ import * as SecureStore from 'expo-secure-store';
 import 'react-native-get-random-values';
 import { AppState } from 'react-native';
 
+import { Database } from '~/types/supabaseTypes';
+
 // As Expo's SecureStore does not support values larger than 2048
 // bytes, an AES-256 key is generated and stored in SecureStore, while
 // it is used to encrypt/decrypt values stored in AsyncStorage.
@@ -64,7 +66,7 @@ if (!supabaseUrl || !supabaseAnonKey) {
     throw new Error('Supabase URL or anon key is not set');
 }
 
-export const supabaseClient = createClient(supabaseUrl, supabaseAnonKey, {
+export const supabaseClient = createClient<Database>(supabaseUrl, supabaseAnonKey, {
     auth: {
         storage: new LargeSecureStore(),
         autoRefreshToken: true,
@@ -85,25 +87,3 @@ AppState.addEventListener('change', (state) => {
         supabaseClient.auth.stopAutoRefresh();
     }
 });
-
-// Function to ensure a user profile exists
-export const ensureProfile = async (user: { id: string }) => {
-    // Check if profile exists
-    const { data: existingProfile } = await supabaseClient
-        .from('profiles')
-        .select('id')
-        .eq('auth_user_id', user.id)
-        .single();
-
-    if (!existingProfile) {
-        // Create profile if it doesn't exist
-        const { error } = await supabaseClient.from('profiles').insert({
-            auth_user_id: user.id,
-        });
-
-        if (error) {
-            console.error('Error creating profile:', error);
-            throw error;
-        }
-    }
-};

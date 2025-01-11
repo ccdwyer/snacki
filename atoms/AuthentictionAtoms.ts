@@ -2,7 +2,7 @@ import { User as SupabaseUser } from '@supabase/supabase-js';
 import { atom, useAtom } from 'jotai';
 import { useCallback, useEffect } from 'react';
 
-import { supabaseClient, ensureProfile } from '../clients/supabase';
+import { supabaseClient } from '../clients/supabase';
 
 export type User = {
     id: string;
@@ -27,10 +27,9 @@ export const useUserAtom = () => {
 
     useEffect(() => {
         // Initialize from stored session when atom is first used
-        supabaseClient.auth.getSession().then(({ data: { session } }) => {
+        supabaseClient.auth.getSession().then(async ({ data: { session } }) => {
             if (session?.user) {
                 setUser(session.user as User);
-                ensureProfile(session.user).catch(console.error);
             }
         });
 
@@ -40,7 +39,6 @@ export const useUserAtom = () => {
         } = supabaseClient.auth.onAuthStateChange(async (event, session) => {
             if (session?.user) {
                 setUser(session.user as User);
-                await ensureProfile(session.user).catch(console.error);
             } else {
                 setUser(null);
             }
