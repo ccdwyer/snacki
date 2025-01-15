@@ -2,8 +2,11 @@ import FontAwesome from '@expo/vector-icons/FontAwesome';
 import React, { useEffect, useRef, useState } from 'react';
 import { View } from 'react-native';
 
-import { LocationPickerEmitter, LocationPickerLocationSelectedEvent } from './LocationPickerModal';
-import { useScreenId } from '../Container';
+import {
+    LocationPickerEmitter,
+    LocationPickerLocationSelectedEvent,
+} from './LocationPickerEmitter';
+import { useScreenId } from '../ScreenIdProvider';
 import { Button } from '../nativewindui/Button';
 import { Text } from '../nativewindui/Text';
 

@@ -1,22 +1,55 @@
-import { useRouter, useSegments } from 'expo-router';
+import { useRouter, useNavigationContainerRef } from 'expo-router';
 import { useEffect, useRef, useState } from 'react';
-import { Linking } from 'react-native';
+import { Linking, Platform } from 'react-native';
+
+const RESET_PASSWORD_PATH = '/(drawer)/auth/reset-password' as const;
+type NavigationParams = { pathname: typeof RESET_PASSWORD_PATH; params: Record<string, string> };
+
+// Only handle URLs that match our deep link patterns
+const isResetPasswordDeepLink = (url: string) => {
+    try {
+        const decodedUrl = decodeURIComponent(url);
+        // Check if URL contains a hash with token or error parameters
+        return (
+            decodedUrl.includes('#token=') ||
+            decodedUrl.includes('#error=') ||
+            decodedUrl.includes('#error_code=')
+        );
+    } catch {
+        return false;
+    }
+};
 
 export function useDeepLinks() {
     const router = useRouter();
-    const segments = useSegments();
+    const { current: rootNavigation } = useNavigationContainerRef();
     const [isReady, setIsReady] = useState(false);
-    const pendingLink = useRef<string | null>(null);
+    const pendingNavigation = useRef<NavigationParams | null>(null);
 
-    // Track when navigation is ready
+    // Track when navigation is ready using expo-router's root navigation
     useEffect(() => {
-        if (segments.length > 0 && !segments.includes('+not-found')) {
+        if (rootNavigation?.isReady) {
             setIsReady(true);
         }
-    }, [segments]);
+    }, [rootNavigation?.isReady]);
+
+    const navigate = (params: NavigationParams) => {
+        if (rootNavigation?.isReady) {
+            router.push(params);
+        } else {
+            console.log('Navigation not ready, storing navigation params for later');
+            pendingNavigation.current = params;
+        }
+    };
 
     const handleUrl = (url: string) => {
-        console.log('Handling URL:', url);
+        // Only handle URLs that match our deep link patterns
+        if (!isResetPasswordDeepLink(url)) {
+            console.log('Not a reset password deep link, ignoring:', url);
+            return;
+        }
+
+        console.log('Handling reset password deep link:', url);
         try {
             // Decode the URL first
             const decodedUrl = decodeURIComponent(url);
@@ -37,52 +70,51 @@ export function useDeepLinks() {
             const errorCode = params.get('error_code');
             const errorDescription = params.get('error_description');
 
-            if (!isReady) {
-                console.log('Navigation not ready, storing URL for later');
-                pendingLink.current = url;
-                return;
-            }
+            // Prepare navigation params
+            let navigationParams: NavigationParams;
 
             if (error || errorCode) {
-                console.log('Navigating with error:', errorDescription || error);
-                // Navigate to reset password with error information
-                router.push({
-                    pathname: '/(drawer)/auth/reset-password',
+                console.log('Preparing error navigation:', errorDescription || error);
+                navigationParams = {
+                    pathname: RESET_PASSWORD_PATH,
                     params: { error: errorDescription || error || 'Unknown error' },
-                });
+                };
             } else {
                 // No error, proceed with token if available
                 const token = params.get('token');
                 if (token) {
-                    console.log('Navigating with token');
-                    router.push({
-                        pathname: '/(drawer)/auth/reset-password',
+                    console.log('Preparing token navigation');
+                    navigationParams = {
+                        pathname: RESET_PASSWORD_PATH,
                         params: { token },
-                    });
+                    };
+                } else {
+                    throw new Error('No token found');
                 }
             }
+
+            navigate(navigationParams);
         } catch (err) {
             console.error('Error handling deep link:', err);
-            if (isReady) {
-                // Navigate to reset password with generic error
-                router.push({
-                    pathname: '/(drawer)/auth/reset-password',
-                    params: { error: 'Invalid reset link' },
-                });
-            }
+            navigate({
+                pathname: RESET_PASSWORD_PATH,
+                params: { error: 'Invalid reset link' },
+            });
         }
     };
 
-    // Handle any pending links when navigation becomes ready
+    // Handle any pending navigation when navigation becomes ready
     useEffect(() => {
-        if (isReady && pendingLink.current) {
-            console.log('Navigation ready, handling pending link');
-            handleUrl(pendingLink.current);
-            pendingLink.current = null;
+        if (rootNavigation?.isReady && pendingNavigation.current) {
+            console.log('Navigation ready, handling pending navigation');
+            router.push(pendingNavigation.current);
+            pendingNavigation.current = null;
         }
-    }, [isReady]);
+    }, [rootNavigation?.isReady, router]);
 
     useEffect(() => {
+        if (!rootNavigation?.isReady) return;
+
         // Handle deep links when the app is already running
         const subscription = Linking.addEventListener('url', ({ url }) => {
             console.log('Received deep link while running:', url);
@@ -90,21 +122,30 @@ export function useDeepLinks() {
         });
 
         // Handle deep links when the app is not running and is opened via URL
-        Linking.getInitialURL().then((url) => {
+        if (Platform.OS === 'web') {
+            // On web, check if we have a deep link in the current URL
+            const url = window.location.href;
             if (url) {
-                console.log('Received initial deep link:', url);
+                console.log('Checking initial web URL:', url);
                 handleUrl(url);
             }
-        });
+        } else {
+            // On native, use Linking.getInitialURL
+            Linking.getInitialURL().then((url) => {
+                if (url) {
+                    console.log('Received initial deep link:', url);
+                    handleUrl(url);
+                }
+            });
+        }
 
         return () => {
             subscription.remove();
         };
-    }, [isReady]); // Re-run when isReady changes
+    }, [rootNavigation?.isReady]); // Only set up listeners when navigation is ready
 
     // Log the current navigation state
     useEffect(() => {
-        console.log('Navigation segments:', segments);
-        console.log('Navigation ready:', isReady);
-    }, [segments, isReady]);
+        console.log('Navigation ready:', rootNavigation?.isReady);
+    }, [rootNavigation?.isReady]);
 }

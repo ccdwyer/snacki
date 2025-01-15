@@ -1,6 +1,7 @@
 import { Ionicons, MaterialIcons } from '@expo/vector-icons';
 import { Link } from 'expo-router';
 import { Drawer } from 'expo-router/drawer';
+import { Platform } from 'react-native';
 
 import { HeaderButton } from '../../components/HeaderButton';
 
@@ -49,6 +50,7 @@ const DrawerLayout = () => {
                     headerTitle: 'Home',
                     drawerLabel: 'Home',
                     drawerItemStyle: user ? {} : { display: 'none' },
+                    headerShown: Platform.OS !== 'web',
                     drawerIcon: ({ size, color }) => (
                         <Ionicons name="home-outline" size={size} color={color} />
                     ),

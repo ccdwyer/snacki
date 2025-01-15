@@ -4,7 +4,7 @@ import { createClient } from '@supabase/supabase-js';
 import * as aesjs from 'aes-js';
 import * as SecureStore from 'expo-secure-store';
 import 'react-native-get-random-values';
-import { AppState } from 'react-native';
+import { AppState, Platform } from 'react-native';
 
 import { Database } from '~/types/supabaseTypes';
 
@@ -39,7 +39,16 @@ class LargeSecureStore {
     }
 
     async getItem(key: string) {
-        const encrypted = await AsyncStorage.getItem(key);
+        let encrypted: string | null = null;
+        if (Platform.OS === 'web') {
+            if (typeof localStorage === 'undefined') {
+                return null;
+            }
+            encrypted = await localStorage.getItem(key);
+        } else {
+            encrypted = await AsyncStorage.getItem(key);
+        }
+
         if (!encrypted) {
             return encrypted;
         }
@@ -48,14 +57,23 @@ class LargeSecureStore {
     }
 
     async removeItem(key: string) {
-        await AsyncStorage.removeItem(key);
+        if (Platform.OS === 'web') {
+            await localStorage.removeItem(key);
+        } else {
+            await AsyncStorage.removeItem(key);
+        }
+
         await SecureStore.deleteItemAsync(key);
     }
 
     async setItem(key: string, value: string) {
         const encrypted = await this._encrypt(key, value);
 
-        await AsyncStorage.setItem(key, encrypted);
+        if (Platform.OS === 'web') {
+            await localStorage.setItem(key, encrypted);
+        } else {
+            await AsyncStorage.setItem(key, encrypted);
+        }
     }
 }
 

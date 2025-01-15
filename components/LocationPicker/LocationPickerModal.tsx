@@ -1,26 +1,13 @@
 import { useTheme } from '@react-navigation/native';
 import React, { useEffect, useState } from 'react';
 import { Dimensions, View } from 'react-native';
-import EventEmitter from 'react-native/Libraries/vendor/emitter/EventEmitter';
-import {
-    GooglePlaceData,
-    GooglePlaceDetail,
-    GooglePlacesAutocomplete,
-} from 'react-native-google-places-autocomplete';
+import { GooglePlacesAutocomplete } from 'react-native-google-places-autocomplete';
 
-import { useScreenId } from '../Container';
+import { useScreenId } from '../ScreenIdProvider';
+import { LocationPickerEmitter } from './LocationPickerEmitter';
 import { Text } from '../nativewindui/Text';
 
 import { GeolocationResponse } from '~/types/GeolocationResponse';
-
-export const LocationPickerEmitter = new EventEmitter();
-
-export type LocationPickerLocationSelectedEvent = {
-    pickerId: string;
-    data: GooglePlaceData;
-    details: GooglePlaceDetail | null;
-    geolocation: GeolocationResponse;
-};
 
 const getGeolocation = async (location: string): Promise<GeolocationResponse> => {
     const response = await fetch(

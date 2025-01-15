@@ -23,15 +23,6 @@ export default function TabLayout() {
                     tabBarIcon: ({ color }) => <TabBarIcon name="truck" color={color} />,
                 }}
             />
-
-            <Tabs.Screen
-                name="(account)"
-                options={{
-                    title: 'Book a Truck',
-                    tabBarIcon: ({ color }) => <TabBarIcon name="calendar" color={color} />,
-                }}
-            />
-
             <Tabs.Screen
                 name="conversations"
                 options={{
