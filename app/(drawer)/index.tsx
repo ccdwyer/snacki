@@ -4,12 +4,15 @@ import { Stack } from 'expo-router';
 import { cssInterop } from 'nativewind';
 import * as React from 'react';
 import { useState } from 'react';
-import { View, Image, ScrollView, TextInput } from 'react-native';
+import { View, Image, ScrollView, TextInput, Linking } from 'react-native';
+import Animated from 'react-native-reanimated';
 
 import { supabaseClient } from '~/clients/supabase';
 import { Button } from '~/components/nativewindui/Button';
 import { Text } from '~/components/nativewindui/Text';
 import { cn } from '~/lib/cn';
+
+const AnimatedView = Animated.createAnimatedComponent(View);
 
 const Hero = () => {
     return (
@@ -46,21 +49,38 @@ const Hero = () => {
 const features = [
     {
         icon: <FontAwesome name="calendar" size={24} className="text-teal-500" />,
-        title: 'Book Events',
+        title: 'Event Management',
         description:
-            'Easily manage and book events for your food truck. Never miss an opportunity to serve your delicious cuisine.',
-    },
-    {
-        icon: <FontAwesome name="clock-o" size={24} className="text-teal-500" />,
-        title: 'Display Upcoming Schedule',
-        description:
-            'Show off your upcoming locations and times. Let your customers know where to find your tropical tastes.',
+            'Display your upcoming events and locations. Make it simple for customers to find you.',
     },
     {
         icon: <FontAwesome name="gift" size={24} className="text-teal-500" />,
         title: 'Loyalty Programs',
         description:
-            'Reward your regular customers with a built-in loyalty program. Keep them coming back for more island flavors.',
+            'Reward your regular customers with a built-in loyalty program. Make more customers repeat customers, and reward them for their loyalty.',
+    },
+    {
+        icon: <FontAwesome name="book" size={24} className="text-teal-500" />,
+        title: 'Take Event Requests',
+        description: 'Let customers book events with you, right through the app.',
+    },
+    {
+        icon: <FontAwesome name="list" size={24} className="text-teal-500" />,
+        title: 'Menu and Order Management',
+        description:
+            'Let customers view your menu, and if desired order and pay for food right from the app.',
+    },
+    {
+        icon: <FontAwesome name="instagram" size={24} className="text-teal-500" />,
+        title: 'Social Media Integration',
+        description:
+            'Share photos and updates with your customers, and let them know where you will be next.',
+    },
+    {
+        icon: <FontAwesome name="mobile-phone" size={24} className="text-teal-500" />,
+        title: 'Communicate with Customers',
+        description:
+            'Send push notifications to your past customers when you are open near them, or when you have a new special.',
     },
 ];
 
@@ -83,6 +103,85 @@ const Features = () => {
                             <Text className="text-teal-600">{feature.description}</Text>
                         </View>
                     ))}
+                </View>
+            </View>
+        </View>
+    );
+};
+
+const AboutMe = () => {
+    return (
+        <View className="bg-teal-70 w-full py-16 md:py-24">
+            <View className="container mx-auto px-6 md:px-8">
+                <View className="text-center">
+                    <Text className="mb-4 text-4xl font-bold text-teal-900 md:text-5xl">
+                        Meet the Founder
+                    </Text>
+                </View>
+
+                <View className="flex flex-col items-center gap-8 md:flex-row md:items-start md:gap-12">
+                    {/* Profile Image */}
+                    <View className="w-full md:w-1/3">
+                        <View className="aspect-square overflow-hidden rounded-2xl bg-teal-100 shadow-md">
+                            <Image
+                                source={require('~/assets/Chris.jpeg')}
+                                alt="Chris Dwyer"
+                                style={{ width: '100%', height: '100%' }}
+                            />
+                        </View>
+                    </View>
+
+                    {/* Content */}
+                    <View className="w-full md:w-2/3">
+                        <View className="space-y-6">
+                            <Text className="text-3xl font-bold text-teal-900">
+                                Hi, I'm Chris 👋
+                            </Text>
+                            <Text className="text-lg leading-relaxed text-teal-700">
+                                With over a decade of experience building mobile apps for both
+                                industry giants and innovative startups, I understand what it takes
+                                to create software that makes a real difference. I've had the
+                                privilege of working with large companies like GM and
+                                Dictionary.com, as well as transformative startups like Bicycle
+                                Health.
+                            </Text>
+                            <Text className="text-lg leading-relaxed text-teal-700">
+                                Now, I'm passionate about bringing that expertise to the food truck
+                                industry with Snacki. I believe food truck owners deserve powerful,
+                                easy-to-use tools that help them focus on what they do best -
+                                creating amazing food experiences.
+                            </Text>
+
+                            {/* Call to Action */}
+                            <View className="mt-8 flex items-center gap-4 sm:flex-col md:flex-row lg:flex-row">
+                                <Button
+                                    className="rounded-full bg-teal-600 px-8 py-4 shadow-lg active:bg-teal-700"
+                                    onPress={() =>
+                                        Linking.openURL(
+                                            'https://calendly.com/admin-snackiapp/30min'
+                                        )
+                                    }>
+                                    <View className="flex flex-row items-center gap-2">
+                                        <FontAwesome name="calendar" size={20} color="white" />
+                                        <Text className="text-lg font-semibold text-white">
+                                            Schedule a Chat
+                                        </Text>
+                                    </View>
+                                </Button>
+                                <Button
+                                    className="rounded-full border-2 border-teal-600 bg-transparent px-8 py-4 shadow-lg active:bg-teal-50"
+                                    onPress={() => {
+                                        Linking.openURL(
+                                            'https://www.linkedin.com/in/dwyerchristopher/'
+                                        );
+                                    }}>
+                                    <Text className="text-lg font-semibold text-teal-600">
+                                        Find me on LinkedIn
+                                    </Text>
+                                </Button>
+                            </View>
+                        </View>
+                    </View>
                 </View>
             </View>
         </View>
@@ -223,6 +322,7 @@ export default function Home() {
                         <Hero />
                         <Features />
                         <EmailSignup />
+                        <AboutMe />
                     </View>
                     <Footer />
                 </View>
