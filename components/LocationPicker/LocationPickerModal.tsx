@@ -14,7 +14,6 @@ const getGeolocation = async (location: string): Promise<GeolocationResponse> =>
         `https://maps.googleapis.com/maps/api/geocode/json?address=${location}&key=${process.env.EXPO_PUBLIC_GOOGLE_PLACES_API_KEY}`
     );
     const data = await response.json();
-    console.log(JSON.stringify(data, null, 2));
     return data;
 };
 
@@ -24,14 +23,9 @@ export const LocationPickerModal = () => {
     const theme = useTheme();
 
     useEffect(() => {
-        console.log('screenId from modal', screenId);
-    }, [screenId]);
-
-    useEffect(() => {
         const subscription = LocationPickerEmitter.addListener(
             'openPicker',
             (event: { pickerId: string; screenId: string }) => {
-                console.log('openPicker', event);
                 if (event.screenId !== screenId) {
                     return;
                 }
@@ -49,8 +43,6 @@ export const LocationPickerModal = () => {
             <GooglePlacesAutocomplete
                 placeholder="Search"
                 onPress={async (data, details = null) => {
-                    console.log(JSON.stringify(data, null, 2));
-                    console.log(JSON.stringify(details, null, 2));
                     // 'details' is provided when fetchDetails = true
                     const geolocation = await getGeolocation(data.description);
                     const event = {

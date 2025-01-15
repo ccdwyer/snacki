@@ -291,6 +291,8 @@ export type Database = {
           description: string | null
           id: string
           joined_date: string | null
+          lat: number | null
+          lng: number | null
           location: unknown | null
           name: string
           range_of_service: number | null
@@ -303,6 +305,8 @@ export type Database = {
           description?: string | null
           id?: string
           joined_date?: string | null
+          lat?: number | null
+          lng?: number | null
           location?: unknown | null
           name: string
           range_of_service?: number | null
@@ -315,6 +319,8 @@ export type Database = {
           description?: string | null
           id?: string
           joined_date?: string | null
+          lat?: number | null
+          lng?: number | null
           location?: unknown | null
           name?: string
           range_of_service?: number | null

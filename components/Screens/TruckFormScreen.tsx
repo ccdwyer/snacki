@@ -1,10 +1,9 @@
 import { useRouter } from 'expo-router';
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import { View, Alert, TextInput, ScrollView } from 'react-native';
 
 import { Container } from '../Container';
 import { LocationPicker } from '../LocationPicker';
-import { LocationPickerLocationSelectedEvent } from '../LocationPicker/LocationPickerModal';
 
 import { useUserAtom } from '~/atoms/AuthentictionAtoms';
 import { Button } from '~/components/nativewindui/Button';
@@ -25,7 +24,16 @@ export default function TruckFormScreen({ mode, truckId }: TruckFormProps) {
     const [name, setName] = useState('');
     const [description, setDescription] = useState('');
     const [address, setAddress] = useState('');
-    const [location, setLocation] = useState<LocationPickerLocationSelectedEvent | null>(null);
+    const [gpsCoordinates, setGpsCoordinates] = useState<{
+        lat: number;
+        lng: number;
+    } | null>(null);
+    const value = useMemo(() => {
+        return {
+            address,
+            gpsCoordinates,
+        };
+    }, [address, gpsCoordinates]);
     const [rangeOfService, setRangeOfService] = useState('');
     const {
         mutate: upsertTruck,
@@ -54,6 +62,10 @@ export default function TruckFormScreen({ mode, truckId }: TruckFormProps) {
                 setDescription(truck.description || '');
                 setAddress(truck.address || '');
                 setRangeOfService(truck.range_of_service?.toString() || '');
+                setGpsCoordinates({
+                    lat: truck.lat,
+                    lng: truck.lng,
+                });
             }
         }
     }, [mode, truckId, trucks]);
@@ -73,8 +85,11 @@ export default function TruckFormScreen({ mode, truckId }: TruckFormProps) {
             name: name.trim(),
             description: description.trim() || '',
             address: address.trim() || '',
+            location: `POINT(${gpsCoordinates?.lng} ${gpsCoordinates?.lat})`,
             range_of_service: rangeOfService ? parseInt(rangeOfService, 10) : null,
             user_id: user.id,
+            lat: gpsCoordinates?.lat,
+            lng: gpsCoordinates?.lng,
         };
 
         upsertTruck(truckData);
@@ -113,7 +128,7 @@ export default function TruckFormScreen({ mode, truckId }: TruckFormProps) {
                         />
                     </View>
 
-                    <View>
+                    {/* <View>
                         <Text variant="caption1" className="mb-1 font-medium">
                             Address
                         </Text>
@@ -124,9 +139,23 @@ export default function TruckFormScreen({ mode, truckId }: TruckFormProps) {
                             editable={!loadingTrucks && !loading}
                             placeholder="Enter address"
                         />
-                    </View>
+                    </View> */}
 
-                    <LocationPicker onLocationSelected={setLocation} />
+                    <LocationPicker
+                        onLocationSelected={(event) => {
+                            console.log('event', event);
+                            const newAddress = event.data.description ?? '';
+                            const newGpsCoordinates =
+                                event.geolocation.results[0].geometry.location ?? null;
+                            console.log({
+                                newAddress,
+                                newGpsCoordinates,
+                            });
+                            setAddress(newAddress);
+                            setGpsCoordinates(newGpsCoordinates);
+                        }}
+                        value={value}
+                    />
 
                     <View>
                         <Text variant="caption1" className="mb-1 font-medium">

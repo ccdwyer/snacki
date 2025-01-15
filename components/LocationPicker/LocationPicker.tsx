@@ -1,5 +1,5 @@
 import FontAwesome from '@expo/vector-icons/FontAwesome';
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useEffect, useRef } from 'react';
 import { View } from 'react-native';
 
 import {
@@ -17,37 +17,16 @@ interface LocationPickerProps {
     value: {
         address: string;
         gpsCoordinates: {
-            latitude: number;
-            longitude: number;
-        };
-    } | null;
+            lat: number;
+            lng: number;
+        } | null;
+    };
 }
 
 export const LocationPicker = ({ onLocationSelected, value }: LocationPickerProps) => {
     const { current: pickerId } = useRef<string | null>(generateRandomBase64(25));
-    const [address, setAddress] = useState<string | null>(value?.address || null);
-    const [gpsCoordinates, setGpsCoordinates] = useState<{
-        latitude: number;
-        longitude: number;
-    } | null>(value?.gpsCoordinates || null);
-
-    const [location, setLocation] = useState<LocationPickerLocationSelectedEvent | null>(null);
-
-    useEffect(() => {
-        if (location) {
-            setAddress(location.data.description);
-            setGpsCoordinates({
-                latitude: location.geolocation.results[0].geometry.location.lat,
-                longitude: location.geolocation.results[0].geometry.location.lng,
-            });
-        }
-    }, [location]);
 
     const screenId = useScreenId();
-
-    useEffect(() => {
-        console.log('screenId from picker', screenId);
-    }, [screenId]);
 
     useEffect(() => {
         const listener = LocationPickerEmitter.addListener(
@@ -58,7 +37,6 @@ export const LocationPicker = ({ onLocationSelected, value }: LocationPickerProp
                 }
 
                 onLocationSelected(event);
-                setLocation(event);
             }
         );
         return () => {
@@ -67,7 +45,7 @@ export const LocationPicker = ({ onLocationSelected, value }: LocationPickerProp
         };
     }, []);
 
-    if (!location) {
+    if (!value?.address || !value?.gpsCoordinates) {
         return (
             <Button
                 onPress={() => {
@@ -86,7 +64,7 @@ export const LocationPicker = ({ onLocationSelected, value }: LocationPickerProp
 
     return (
         <View className="items-center justify-center">
-            <Text>{location.data.description}</Text>
+            <Text>{value.address}</Text>
             <Button
                 onPress={() => {
                     LocationPickerEmitter.emit('openPicker', {
