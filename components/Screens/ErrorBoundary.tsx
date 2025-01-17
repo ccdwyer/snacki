@@ -1,5 +1,5 @@
 import React from 'react';
-import { View, Image } from 'react-native';
+import { View, Image, ActivityIndicator } from 'react-native';
 
 import { Button } from '../nativewindui/Button';
 
@@ -9,11 +9,21 @@ export const ErrorBoundary = ({
     children,
     error,
     dismiss,
+    loading,
 }: {
     children: React.ReactNode;
     error?: Error | null;
     dismiss?: () => void;
+    loading?: boolean;
 }) => {
+    if (loading) {
+        return (
+            <View className="flex-1 items-center justify-center">
+                <ActivityIndicator size="large" color="#0d9488" />
+            </View>
+        );
+    }
+
     if (!error) {
         return <>{children}</>;
     }

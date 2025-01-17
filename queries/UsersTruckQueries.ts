@@ -49,6 +49,7 @@ export const useUpsertTruckForCurrentUser = ({
             upsertTruck(truck, user),
         onSuccess: (data) => {
             queryClient.invalidateQueries({ queryKey: ['trucks', user?.id] });
+            queryClient.invalidateQueries({ queryKey: ['truck', data[0].id] });
             onSuccess?.(data);
         },
         onError: (error: Error) => {

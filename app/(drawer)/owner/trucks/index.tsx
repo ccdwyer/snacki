@@ -1,6 +1,6 @@
 import { Icon } from '@roninoss/icons';
 import { Link, Stack, useRouter } from 'expo-router';
-import { View } from 'react-native';
+import { Pressable, View } from 'react-native';
 
 import { Container } from '~/components/Container';
 import { ErrorBoundary } from '~/components/Screens/ErrorBoundary';
@@ -66,25 +66,27 @@ export default function TruckList() {
                     ) : (
                         <View className="flex-1 gap-4 p-4">
                             {trucks.map((truck) => (
-                                <Link
-                                    key={truck.id}
-                                    href={`/owner/trucks/${truck.id}/update`}
-                                    asChild>
-                                    <View className="rounded-lg border border-border bg-card p-4">
-                                        <Text variant="heading" className="mb-1">
-                                            {truck.name}
-                                        </Text>
-                                        {truck.description && (
-                                            <Text variant="body" color="secondary" className="mb-2">
-                                                {truck.description}
+                                <Link key={truck.id} href={`/owner/trucks/${truck.id}`} asChild>
+                                    <Pressable>
+                                        <View className="rounded-lg border border-border bg-card p-4">
+                                            <Text variant="heading" className="mb-1">
+                                                {truck.name}
                                             </Text>
-                                        )}
-                                        {truck.address && (
-                                            <Text variant="caption1" color="secondary">
-                                                📍 {truck.address}
-                                            </Text>
-                                        )}
-                                    </View>
+                                            {truck.description && (
+                                                <Text
+                                                    variant="body"
+                                                    color="secondary"
+                                                    className="mb-2">
+                                                    {truck.description}
+                                                </Text>
+                                            )}
+                                            {truck.address && (
+                                                <Text variant="caption1" color="secondary">
+                                                    📍 {truck.address}
+                                                </Text>
+                                            )}
+                                        </View>
+                                    </Pressable>
                                 </Link>
                             ))}
                         </View>
