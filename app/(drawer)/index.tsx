@@ -1,4 +1,5 @@
 import { FontAwesome } from '@expo/vector-icons';
+import { useTheme } from '@react-navigation/native';
 import { FlashList } from '@shopify/flash-list';
 import { Stack } from 'expo-router';
 import { cssInterop } from 'nativewind';
@@ -7,7 +8,9 @@ import { useState } from 'react';
 import { View, Image, ScrollView, TextInput, Linking } from 'react-native';
 import Animated from 'react-native-reanimated';
 
+import { useCuisineTypes } from '~/atoms/GlobalDataAtoms';
 import { supabaseClient } from '~/clients/supabase';
+import MultiSelect from '~/components/MultiSelect';
 import { Button } from '~/components/nativewindui/Button';
 import { Text } from '~/components/nativewindui/Text';
 import { cn } from '~/lib/cn';
@@ -313,6 +316,12 @@ const Footer = () => {
 };
 
 export default function Home() {
+    const cuisineTypes = useCuisineTypes();
+    const theme = useTheme();
+    const [selectedCuisineTypes, setSelectedCuisineTypes] = useState<string[]>([]);
+    React.useEffect(() => {
+        console.log('selectedCuisineTypes', selectedCuisineTypes);
+    }, [selectedCuisineTypes]);
     return (
         <>
             <Stack.Screen options={{ title: 'Snacki App' }} />
@@ -320,6 +329,22 @@ export default function Home() {
                 <View className="flex min-h-screen flex-col bg-gradient-to-b from-yellow-100 to-green-100">
                     <View className="flex-grow">
                         <Hero />
+                        <MultiSelect
+                            data={cuisineTypes}
+                            labelField="name"
+                            valueField="id"
+                            value={selectedCuisineTypes}
+                            onChange={(values) => {
+                                setSelectedCuisineTypes(values);
+                            }}
+                            placeholder={
+                                selectedCuisineTypes.length === 0
+                                    ? 'Select a cuisine type'
+                                    : `${selectedCuisineTypes.length} selected`
+                            }
+                            search
+                            searchPlaceholder="Search cuisine type"
+                        />
                         <Features />
                         <EmailSignup />
                         <AboutMe />

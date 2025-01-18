@@ -1,23 +1,24 @@
 import { Stack, useLocalSearchParams, useRouter } from 'expo-router';
 
 import { Container } from '~/components/Container';
-import TruckDetailsScreen from '~/components/Screens/TruckDetailsScreen';
+import MenuDetailsScreen from '~/components/Screens/MenuDetailsScreen';
 import { Button } from '~/components/nativewindui/Button';
 import { Text } from '~/components/nativewindui/Text';
 
 export default function TruckDetails() {
     const router = useRouter();
-    const { id } = useLocalSearchParams();
+    const { id, menuId } = useLocalSearchParams();
+    const menuIdString = Array.isArray(menuId) ? menuId[0] : menuId;
     return (
         <>
             <Stack.Screen
                 options={{
-                    title: 'Truck Details',
+                    title: 'Menu Details',
                     headerRight: () => (
                         <Button
                             variant="plain"
                             onPress={() => {
-                                router.push(`/owner/trucks/${id}/edit`);
+                                router.push(`/owner/trucks/${id}/menu/${menuId}/edit`);
                             }}>
                             <Text className="text-primary">Update</Text>
                         </Button>
@@ -25,7 +26,7 @@ export default function TruckDetails() {
                 }}
             />
             <Container>
-                <TruckDetailsScreen />
+                <MenuDetailsScreen menuId={menuIdString} />
             </Container>
         </>
     );

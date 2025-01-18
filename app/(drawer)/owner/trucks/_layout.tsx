@@ -1,9 +1,10 @@
 import { DrawerToggleButton } from '@react-navigation/drawer';
 import { useTheme } from '@react-navigation/native';
-import { Stack } from 'expo-router';
+import { Stack, useRouter } from 'expo-router';
 
 export default function TabLayout() {
     const theme = useTheme();
+    const router = useRouter();
     return (
         <Stack>
             <Stack.Screen
@@ -20,9 +21,21 @@ export default function TabLayout() {
                 }}
             />
             <Stack.Screen
-                name="[id]/menu"
+                name="[id]/menu/[menuId]"
                 options={{
-                    title: 'Truck Form',
+                    title: 'Menu Details',
+                }}
+            />
+            <Stack.Screen
+                name="[id]/menu/create"
+                options={{
+                    title: 'Edit Menu',
+                }}
+            />
+            <Stack.Screen
+                name="[id]/menu/[menuId]/edit"
+                options={{
+                    title: 'Edit Menu',
                 }}
             />
             <Stack.Screen
@@ -32,7 +45,7 @@ export default function TabLayout() {
                 }}
             />
             <Stack.Screen
-                name="[id]/update"
+                name="[id]/edit"
                 options={{
                     title: 'Update Truck',
                 }}

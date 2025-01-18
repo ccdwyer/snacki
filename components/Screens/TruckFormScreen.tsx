@@ -4,8 +4,10 @@ import { View, Alert, TextInput, ScrollView } from 'react-native';
 
 import { Container } from '../Container';
 import { LocationPicker } from '../LocationPicker';
+import MultiSelect from '../MultiSelect';
 
 import { useUserAtom } from '~/atoms/AuthentictionAtoms';
+import { useCuisineTypes } from '~/atoms/GlobalDataAtoms';
 import { Button } from '~/components/nativewindui/Button';
 import { Text } from '~/components/nativewindui/Text';
 import {
@@ -28,6 +30,8 @@ export default function TruckFormScreen({ mode, truckId }: TruckFormProps) {
         lat: number;
         lng: number;
     } | null>(null);
+    const cuisineTypes = useCuisineTypes();
+    const [selectedCuisineTypes, setSelectedCuisineTypes] = useState<string[]>([]);
     const value = useMemo(() => {
         return {
             address,
@@ -41,7 +45,7 @@ export default function TruckFormScreen({ mode, truckId }: TruckFormProps) {
         isPending,
     } = useUpsertTruckForCurrentUser({
         onSuccess: () => {
-            router.push('/owner/trucks');
+            router.back();
         },
     });
 
@@ -53,6 +57,12 @@ export default function TruckFormScreen({ mode, truckId }: TruckFormProps) {
 
     const { data: trucks, isLoading: loadingTrucks } = useGetTrucksForCurrentUser();
     const loading = isPending || (mode === 'update' && loadingTrucks);
+    const formCompleted =
+        name.trim().length > 0 &&
+        description.trim().length > 0 &&
+        address.trim().length > 0 &&
+        rangeOfService.trim().length > 0 &&
+        !!gpsCoordinates;
 
     useEffect(() => {
         if (mode === 'update' && truckId && trucks) {
@@ -63,9 +73,12 @@ export default function TruckFormScreen({ mode, truckId }: TruckFormProps) {
                 setAddress(truck.address || '');
                 setRangeOfService(truck.range_of_service?.toString() || '');
                 setGpsCoordinates({
-                    lat: truck.lat,
-                    lng: truck.lng,
+                    lat: truck.lat ?? 0,
+                    lng: truck.lng ?? 0,
                 });
+                setSelectedCuisineTypes(
+                    truck.cuisine_types?.map((ct) => ct.cuisine_types.id) ?? []
+                );
             }
         }
     }, [mode, truckId, trucks]);
@@ -82,6 +95,7 @@ export default function TruckFormScreen({ mode, truckId }: TruckFormProps) {
         }
 
         const truckData = {
+            id: truckId,
             name: name.trim(),
             description: description.trim() || '',
             address: address.trim() || '',
@@ -90,6 +104,7 @@ export default function TruckFormScreen({ mode, truckId }: TruckFormProps) {
             user_id: user.id,
             lat: gpsCoordinates?.lat,
             lng: gpsCoordinates?.lng,
+            cuisineTypeIds: selectedCuisineTypes,
         };
 
         upsertTruck(truckData);
@@ -171,11 +186,28 @@ export default function TruckFormScreen({ mode, truckId }: TruckFormProps) {
                         />
                     </View>
 
+                    <MultiSelect
+                        data={cuisineTypes}
+                        labelField="name"
+                        valueField="id"
+                        value={selectedCuisineTypes}
+                        onChange={(values) => {
+                            setSelectedCuisineTypes(values);
+                        }}
+                        placeholder={
+                            selectedCuisineTypes.length === 0
+                                ? 'Select a cuisine type'
+                                : `${selectedCuisineTypes.length} selected`
+                        }
+                        search
+                        searchPlaceholder="Search cuisine type"
+                    />
+
                     <Button
                         variant="primary"
                         onPress={handleSubmit}
                         className="mt-8"
-                        disabled={loadingTrucks || loading}>
+                        disabled={!formCompleted || loading}>
                         <Text>{mode === 'create' ? 'Create Food Truck' : 'Update Food Truck'}</Text>
                     </Button>
                 </View>

@@ -13,6 +13,7 @@ import { useEffect } from 'react';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { KeyboardProvider } from 'react-native-keyboard-controller';
 
+import { useFetchGlobalData } from '~/atoms/GlobalDataAtoms';
 import { QueryClientProvider } from '~/clients/query';
 import { ThemeToggle } from '~/components/ThemeToggle';
 import { useDeepLinks } from '~/hooks/useDeepLinks';
@@ -55,6 +56,7 @@ SplashScreen.preventAutoHideAsync();
 export default function RootLayout() {
     useInitialAndroidBarSync();
     useDeepLinks();
+    useFetchGlobalData();
     const { colorScheme, isDarkColorScheme } = useColorScheme();
 
     const [loaded, error] = useFonts({

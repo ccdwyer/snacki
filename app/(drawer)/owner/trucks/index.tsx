@@ -75,13 +75,14 @@ export default function TruckList() {
                                             {truck.description && (
                                                 <Text
                                                     variant="body"
-                                                    color="secondary"
-                                                    className="mb-2">
+                                                    className="text-foreground/80 mb-2">
                                                     {truck.description}
                                                 </Text>
                                             )}
                                             {truck.address && (
-                                                <Text variant="caption1" color="secondary">
+                                                <Text
+                                                    variant="caption1"
+                                                    className="text-foreground/80">
                                                     📍 {truck.address}
                                                 </Text>
                                             )}

@@ -1,5 +1,5 @@
 {
-    "cSpell.words": ["aesjs", "nativewindui", "supabase"],
+    "cSpell.words": ["aesjs", "nativewindui", "Pressable", "supabase", "Swipeable"],
     "workbench.colorCustomizations": {
         "titleBar.activeForeground": "#000",
         "titleBar.inactiveForeground": "#000000cc",
