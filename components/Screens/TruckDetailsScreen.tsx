@@ -1,7 +1,8 @@
+import { FontAwesome } from '@expo/vector-icons';
 import { Icon } from '@roninoss/icons';
 import { Link, useLocalSearchParams, useRouter } from 'expo-router';
 import React, { useState } from 'react';
-import { View, Alert, ScrollView, TouchableHighlight } from 'react-native';
+import { View, Alert, ScrollView, TouchableHighlight, Linking, Pressable } from 'react-native';
 import Swipeable from 'react-native-gesture-handler/ReanimatedSwipeable';
 
 import { ErrorBoundary } from './ErrorBoundary';
@@ -115,6 +116,28 @@ export const TruckDetailsScreen = () => {
                         <Text className="text-center text-2xl font-bold text-white">
                             {truck.name}
                         </Text>
+                        <View className="absolute bottom-0 left-0 flex-row items-center justify-center gap-4 p-2">
+                            {truck.facebook_url && (
+                                <Pressable onPress={() => Linking.openURL(truck.facebook_url)}>
+                                    <FontAwesome name="facebook" size={20} color="#FFF" />
+                                </Pressable>
+                            )}
+                            {truck.instagram_url && (
+                                <Pressable onPress={() => Linking.openURL(truck.instagram_url)}>
+                                    <FontAwesome name="instagram" size={20} color="#FFF" />
+                                </Pressable>
+                            )}
+                            {truck.tiktok_url && (
+                                <Pressable onPress={() => Linking.openURL(truck.tiktok_url)}>
+                                    <FontAwesome name="clock-o" size={20} color="#FFF" />
+                                </Pressable>
+                            )}
+                            {truck.website_url && (
+                                <Pressable onPress={() => Linking.openURL(truck.website_url)}>
+                                    <FontAwesome name="globe" size={20} color="#FFF" />
+                                </Pressable>
+                            )}
+                        </View>
                     </View>
 
                     {/* Tabs */}

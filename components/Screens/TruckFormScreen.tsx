@@ -14,6 +14,16 @@ import {
     useGetTrucksForCurrentUser,
     useUpsertTruckForCurrentUser,
 } from '~/queries/UsersTruckQueries';
+import { Database } from '~/types/supabaseTypes';
+
+type Truck = Database['public']['Tables']['food_trucks']['Row'] & {
+    cuisine_types?: {
+        cuisine_types: {
+            id: string;
+            name: string;
+        };
+    }[];
+};
 
 type TruckFormProps = {
     mode: 'create' | 'update';
@@ -26,10 +36,15 @@ export default function TruckFormScreen({ mode, truckId }: TruckFormProps) {
     const [name, setName] = useState('');
     const [description, setDescription] = useState('');
     const [address, setAddress] = useState('');
+    const [facebookUrl, setFacebookUrl] = useState('');
+    const [instagramUrl, setInstagramUrl] = useState('');
+    const [tiktokUrl, setTiktokUrl] = useState('');
+    const [websiteUrl, setWebsiteUrl] = useState('');
     const [gpsCoordinates, setGpsCoordinates] = useState<{
         lat: number;
         lng: number;
     } | null>(null);
+    const [rangeOfService, setRangeOfService] = useState('');
     const cuisineTypes = useCuisineTypes();
     const [selectedCuisineTypes, setSelectedCuisineTypes] = useState<string[]>([]);
     const value = useMemo(() => {
@@ -38,7 +53,6 @@ export default function TruckFormScreen({ mode, truckId }: TruckFormProps) {
             gpsCoordinates,
         };
     }, [address, gpsCoordinates]);
-    const [rangeOfService, setRangeOfService] = useState('');
     const {
         mutate: upsertTruck,
         isError,
@@ -66,11 +80,15 @@ export default function TruckFormScreen({ mode, truckId }: TruckFormProps) {
 
     useEffect(() => {
         if (mode === 'update' && truckId && trucks) {
-            const truck = trucks.find((t) => t.id === truckId);
+            const truck = trucks.find((t) => t.id === truckId) as Truck;
             if (truck) {
                 setName(truck.name);
                 setDescription(truck.description || '');
                 setAddress(truck.address || '');
+                setFacebookUrl(truck.facebook_url || '');
+                setInstagramUrl(truck.instagram_url || '');
+                setTiktokUrl(truck.tiktok_url || '');
+                setWebsiteUrl(truck.website_url || '');
                 setRangeOfService(truck.range_of_service?.toString() || '');
                 setGpsCoordinates({
                     lat: truck.lat ?? 0,
@@ -99,6 +117,10 @@ export default function TruckFormScreen({ mode, truckId }: TruckFormProps) {
             name: name.trim(),
             description: description.trim() || '',
             address: address.trim() || '',
+            facebook_url: facebookUrl.trim() || undefined,
+            instagram_url: instagramUrl.trim() || undefined,
+            tiktok_url: tiktokUrl.trim() || undefined,
+            website_url: websiteUrl.trim() || undefined,
             location: `POINT(${gpsCoordinates?.lng} ${gpsCoordinates?.lat})`,
             range_of_service: rangeOfService ? parseInt(rangeOfService, 10) : null,
             user_id: user.id,
@@ -202,6 +224,66 @@ export default function TruckFormScreen({ mode, truckId }: TruckFormProps) {
                         search
                         searchPlaceholder="Search cuisine type"
                     />
+
+                    <View>
+                        <Text variant="caption1" className="mb-1 font-medium">
+                            Website URL
+                        </Text>
+                        <TextInput
+                            className="w-full rounded-lg border border-gray-300 bg-gray-100 px-4 py-3"
+                            value={websiteUrl}
+                            onChangeText={setWebsiteUrl}
+                            editable={!loadingTrucks && !loading}
+                            placeholder="Enter website URL"
+                            keyboardType="url"
+                            autoCapitalize="none"
+                        />
+                    </View>
+
+                    <View>
+                        <Text variant="caption1" className="mb-1 font-medium">
+                            Facebook URL
+                        </Text>
+                        <TextInput
+                            className="w-full rounded-lg border border-gray-300 bg-gray-100 px-4 py-3"
+                            value={facebookUrl}
+                            onChangeText={setFacebookUrl}
+                            editable={!loadingTrucks && !loading}
+                            placeholder="Enter Facebook URL"
+                            keyboardType="url"
+                            autoCapitalize="none"
+                        />
+                    </View>
+
+                    <View>
+                        <Text variant="caption1" className="mb-1 font-medium">
+                            Instagram URL
+                        </Text>
+                        <TextInput
+                            className="w-full rounded-lg border border-gray-300 bg-gray-100 px-4 py-3"
+                            value={instagramUrl}
+                            onChangeText={setInstagramUrl}
+                            editable={!loadingTrucks && !loading}
+                            placeholder="Enter Instagram URL"
+                            keyboardType="url"
+                            autoCapitalize="none"
+                        />
+                    </View>
+
+                    <View>
+                        <Text variant="caption1" className="mb-1 font-medium">
+                            TikTok URL
+                        </Text>
+                        <TextInput
+                            className="w-full rounded-lg border border-gray-300 bg-gray-100 px-4 py-3"
+                            value={tiktokUrl}
+                            onChangeText={setTiktokUrl}
+                            editable={!loadingTrucks && !loading}
+                            placeholder="Enter TikTok URL"
+                            keyboardType="url"
+                            autoCapitalize="none"
+                        />
+                    </View>
 
                     <Button
                         variant="primary"

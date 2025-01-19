@@ -292,43 +292,55 @@ export type Database = {
           address: string | null
           created_at: string
           description: string | null
+          facebook_url: string
           id: string
+          instagram_url: string
           joined_date: string | null
           lat: number | null
           lng: number | null
           location: unknown | null
           name: string
           range_of_service: number | null
+          tiktok_url: string
           updated_at: string
           user_id: string
+          website_url: string
         }
         Insert: {
           address?: string | null
           created_at?: string
           description?: string | null
+          facebook_url?: string
           id?: string
+          instagram_url?: string
           joined_date?: string | null
           lat?: number | null
           lng?: number | null
           location?: unknown | null
           name: string
           range_of_service?: number | null
+          tiktok_url?: string
           updated_at?: string
           user_id: string
+          website_url?: string
         }
         Update: {
           address?: string | null
           created_at?: string
           description?: string | null
+          facebook_url?: string
           id?: string
+          instagram_url?: string
           joined_date?: string | null
           lat?: number | null
           lng?: number | null
           location?: unknown | null
           name?: string
           range_of_service?: number | null
+          tiktok_url?: string
           updated_at?: string
           user_id?: string
+          website_url?: string
         }
         Relationships: []
       }
