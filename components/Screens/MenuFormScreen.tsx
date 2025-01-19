@@ -1,5 +1,6 @@
+import { useTheme } from '@react-navigation/native';
 import { Icon } from '@roninoss/icons';
-import { useRouter } from 'expo-router';
+import { Stack, useRouter } from 'expo-router';
 import React, { useEffect, useState } from 'react';
 import { View, Alert, TextInput, ScrollView } from 'react-native';
 
@@ -8,7 +9,6 @@ import { Container } from '../Container';
 import { useUserAtom } from '~/atoms/AuthentictionAtoms';
 import { Button } from '~/components/nativewindui/Button';
 import { Text } from '~/components/nativewindui/Text';
-import { useColorScheme } from '~/lib/useColorScheme';
 import { useGetMenuById } from '~/queries/MenuQueries';
 import {
     useUpsertMenuForCurrentUser,
@@ -38,7 +38,8 @@ type MenuItem = {
 
 export default function MenuFormScreen({ mode, truckId, menuId }: MenuFormProps) {
     const router = useRouter();
-    const { colors } = useColorScheme();
+    const theme = useTheme();
+    const { colors } = theme;
     const [user] = useUserAtom();
     const [name, setName] = useState('');
     const [description, setDescription] = useState('');
@@ -277,211 +278,173 @@ export default function MenuFormScreen({ mode, truckId, menuId }: MenuFormProps)
     };
 
     return (
-        <Container>
-            <ScrollView className="flex-1">
-                <View className="gap-4 space-y-4 p-4">
-                    <View className="p-4">
-                        <View className="mb-4">
-                            <Text variant="caption2" className="mb-1">
-                                Menu Name *
-                            </Text>
-                            <TextInput
-                                className="placeholder:text-foreground/50 w-full rounded-lg border border-gray-300 bg-gray-500/20 px-4 py-2 text-foreground focus:border-primary"
-                                value={name}
-                                onChangeText={setName}
-                                placeholder="Enter menu name"
-                            />
-                        </View>
-
-                        <View className="mb-4">
-                            <Text variant="caption2" className="mb-1">
-                                Description *
-                            </Text>
-                            <TextInput
-                                className="placeholder:text-foreground/50 w-full rounded-lg border border-gray-300 bg-gray-500/20 px-4 py-2 text-foreground focus:border-primary"
-                                value={description}
-                                onChangeText={setDescription}
-                                placeholder="Enter menu description"
-                            />
-                        </View>
-
-                        <View className="space-y-6">
-                            <View className="flex-row items-center justify-between">
-                                <Text variant="caption1" className="font-medium">
-                                    Menu Sections *
+        <>
+            <Stack.Screen
+                options={{
+                    title: mode === 'create' ? 'Create Menu' : 'Update Menu',
+                    headerRight: () => (
+                        <Button
+                            variant="plain"
+                            onPress={handleSubmit}
+                            disabled={!formCompleted || isPending}>
+                            <Text className="text-primary">Save</Text>
+                        </Button>
+                    ),
+                }}
+            />
+            <Container>
+                <ScrollView className="flex-1">
+                    <View className="gap-4 space-y-4 p-4">
+                        <View className="p-4">
+                            <View className="mb-4">
+                                <Text variant="caption2" className="mb-1">
+                                    Menu Name *
                                 </Text>
-                                <Button variant="plain" onPress={handleAddSection}>
-                                    <Icon name="plus" size={24} color={colors.primary} />
-                                </Button>
+                                <TextInput
+                                    className="placeholder:text-foreground/50 w-full rounded-lg border border-gray-300 bg-gray-500/20 px-4 py-2 text-foreground focus:border-primary"
+                                    value={name}
+                                    onChangeText={setName}
+                                    placeholder="Enter menu name"
+                                />
                             </View>
 
-                            {sections.map((section, sectionIndex) => (
-                                <View
-                                    key={sectionIndex}
-                                    className="mb-6 rounded-lg border border-gray-300 p-4">
-                                    <View className="flex-row items-center justify-between">
-                                        <Text variant="caption2" className="font-medium">
-                                            Section {sectionIndex + 1}
-                                        </Text>
-                                        <Button
-                                            variant="plain"
-                                            onPress={() => handleRemoveSection(sectionIndex)}>
-                                            <Icon
-                                                name="close-circle-outline"
-                                                size={20}
-                                                color={colors.grey2}
-                                            />
-                                        </Button>
-                                    </View>
-
-                                    <View className="mt-2">
-                                        <Text variant="caption2" className="mb-1">
-                                            Section Name *
-                                        </Text>
-                                        <TextInput
-                                            className="placeholder:text-foreground/50 w-full rounded-lg border border-gray-300 bg-gray-500/20 px-4 py-2 text-foreground focus:border-primary"
-                                            value={section.name}
-                                            onChangeText={(value) =>
-                                                handleUpdateSection(sectionIndex, 'name', value)
-                                            }
-                                            placeholder="Enter section name"
-                                        />
-                                    </View>
-
-                                    <View className="mt-2">
-                                        <Text variant="caption2" className="mb-1">
-                                            Description
-                                        </Text>
-                                        <TextInput
-                                            className="placeholder:text-foreground/50 w-full rounded-lg border border-gray-300 bg-gray-500/20 px-4 py-2 text-foreground focus:border-primary"
-                                            value={section.description}
-                                            onChangeText={(value) =>
-                                                handleUpdateSection(
-                                                    sectionIndex,
-                                                    'description',
-                                                    value
-                                                )
-                                            }
-                                            placeholder="Enter section description"
-                                        />
-                                    </View>
-
-                                    <View className="mt-4">
-                                        <View className="flex-row items-center justify-between">
-                                            <Text variant="caption2" className="font-medium">
-                                                Items *
-                                            </Text>
-                                            <Button
-                                                variant="plain"
-                                                onPress={() => handleAddItem(sectionIndex)}>
-                                                <Icon
-                                                    name="plus"
-                                                    size={20}
-                                                    color={colors.primary}
+                            <View className="space-y-6">
+                                {sections.map((section, sectionIndex) => (
+                                    <View key={sectionIndex} className="mb-6">
+                                        <View className="mt-8 flex-row align-bottom">
+                                            <View className="mr-2 flex-1">
+                                                <Text variant="caption2" className="mb-1">
+                                                    Section Name *
+                                                </Text>
+                                                <TextInput
+                                                    className="placeholder:text-foreground/50 w-full rounded-lg border-b border-gray-300 bg-gray-500/20 px-4 py-2 text-foreground focus:border-primary"
+                                                    value={section.name}
+                                                    onChangeText={(value) =>
+                                                        handleUpdateSection(
+                                                            sectionIndex,
+                                                            'name',
+                                                            value
+                                                        )
+                                                    }
+                                                    placeholder="Enter section name"
                                                 />
+                                            </View>
+                                            <Button
+                                                className="aspect-square self-end bg-red-500"
+                                                variant="primary"
+                                                onPress={() => handleRemoveSection(sectionIndex)}>
+                                                <Icon name="trash-can" size={20} color="#FFF" />
                                             </Button>
                                         </View>
 
-                                        {section.items.map((item, itemIndex) => (
-                                            <View
-                                                key={itemIndex}
-                                                className="mt-2 rounded-lg border border-gray-200 p-3">
-                                                <View className="flex-row items-center justify-between">
-                                                    <Text
-                                                        variant="caption2"
-                                                        className="font-medium">
-                                                        Item {itemIndex + 1}
-                                                    </Text>
-                                                    <Button
-                                                        variant="plain"
-                                                        onPress={() =>
-                                                            handleRemoveItem(
-                                                                sectionIndex,
-                                                                itemIndex
-                                                            )
-                                                        }>
-                                                        <Icon
-                                                            name="close-circle-outline"
-                                                            size={20}
-                                                            color={colors.grey2}
+                                        <View className="">
+                                            {section.items.map((item, itemIndex) => (
+                                                <View
+                                                    key={itemIndex}
+                                                    className="mt-4 border-l-4 border-primary py-2 pl-4">
+                                                    <View className="flex-row items-center justify-between">
+                                                        <View className="mr-2 flex-1">
+                                                            <Text
+                                                                variant="caption2"
+                                                                className="mb-1">
+                                                                Item Name *
+                                                            </Text>
+                                                            <TextInput
+                                                                className="placeholder:text-foreground/50 w-full rounded-lg border border-gray-300 bg-gray-500/20 px-4 py-2 text-foreground focus:border-primary"
+                                                                value={item.name}
+                                                                onChangeText={(value) =>
+                                                                    handleUpdateItem(
+                                                                        sectionIndex,
+                                                                        itemIndex,
+                                                                        'name',
+                                                                        value
+                                                                    )
+                                                                }
+                                                                placeholder="Enter item name"
+                                                            />
+                                                        </View>
+                                                        <Button
+                                                            variant="primary"
+                                                            className="aspect-square self-end bg-red-500"
+                                                            onPress={() =>
+                                                                handleRemoveItem(
+                                                                    sectionIndex,
+                                                                    itemIndex
+                                                                )
+                                                            }>
+                                                            <Icon
+                                                                name="trash-can"
+                                                                size={20}
+                                                                color="#FFF"
+                                                            />
+                                                        </Button>
+                                                    </View>
+
+                                                    <View className="mt-2">
+                                                        <Text variant="caption2" className="mb-1">
+                                                            Description
+                                                        </Text>
+                                                        <TextInput
+                                                            className="placeholder:text-foreground/50 w-full rounded-lg border border-gray-300 bg-gray-500/20 px-4 py-2 text-foreground focus:border-primary"
+                                                            value={item.description}
+                                                            onChangeText={(value) =>
+                                                                handleUpdateItem(
+                                                                    sectionIndex,
+                                                                    itemIndex,
+                                                                    'description',
+                                                                    value
+                                                                )
+                                                            }
+                                                            placeholder="Enter item description"
                                                         />
-                                                    </Button>
-                                                </View>
+                                                    </View>
 
-                                                <View className="mt-2">
-                                                    <Text variant="caption2" className="mb-1">
-                                                        Item Name *
-                                                    </Text>
-                                                    <TextInput
-                                                        className="placeholder:text-foreground/50 w-full rounded-lg border border-gray-300 bg-gray-500/20 px-4 py-2 text-foreground focus:border-primary"
-                                                        value={item.name}
-                                                        onChangeText={(value) =>
-                                                            handleUpdateItem(
-                                                                sectionIndex,
-                                                                itemIndex,
-                                                                'name',
-                                                                value
-                                                            )
-                                                        }
-                                                        placeholder="Enter item name"
-                                                    />
+                                                    <View className="mt-2">
+                                                        <Text variant="caption2" className="mb-1">
+                                                            Price *
+                                                        </Text>
+                                                        <TextInput
+                                                            className="placeholder:text-foreground/50 w-full rounded-lg border border-gray-300 bg-gray-500/20 px-4 py-2 text-foreground focus:border-primary"
+                                                            value={item.price}
+                                                            onChangeText={(value) =>
+                                                                handleUpdateItem(
+                                                                    sectionIndex,
+                                                                    itemIndex,
+                                                                    'price',
+                                                                    value
+                                                                )
+                                                            }
+                                                            placeholder="Enter price"
+                                                            keyboardType="decimal-pad"
+                                                        />
+                                                    </View>
                                                 </View>
-
-                                                <View className="mt-2">
-                                                    <Text variant="caption2" className="mb-1">
-                                                        Description
-                                                    </Text>
-                                                    <TextInput
-                                                        className="placeholder:text-foreground/50 w-full rounded-lg border border-gray-300 bg-gray-500/20 px-4 py-2 text-foreground focus:border-primary"
-                                                        value={item.description}
-                                                        onChangeText={(value) =>
-                                                            handleUpdateItem(
-                                                                sectionIndex,
-                                                                itemIndex,
-                                                                'description',
-                                                                value
-                                                            )
-                                                        }
-                                                        placeholder="Enter item description"
-                                                    />
-                                                </View>
-
-                                                <View className="mt-2">
-                                                    <Text variant="caption2" className="mb-1">
-                                                        Price *
-                                                    </Text>
-                                                    <TextInput
-                                                        className="placeholder:text-foreground/50 w-full rounded-lg border border-gray-300 bg-gray-500/20 px-4 py-2 text-foreground focus:border-primary"
-                                                        value={item.price}
-                                                        onChangeText={(value) =>
-                                                            handleUpdateItem(
-                                                                sectionIndex,
-                                                                itemIndex,
-                                                                'price',
-                                                                value
-                                                            )
-                                                        }
-                                                        placeholder="Enter price"
-                                                        keyboardType="decimal-pad"
-                                                    />
-                                                </View>
+                                            ))}
+                                        </View>
+                                        <Button
+                                            className="mt-4"
+                                            variant="primary"
+                                            onPress={() => handleAddItem(sectionIndex)}>
+                                            <View className="flex-row items-center justify-center">
+                                                <Icon name="plus" size={20} color="#FFF" />
+                                                <Text className="ml-2">
+                                                    Add New Item to {section.name}
+                                                </Text>
                                             </View>
-                                        ))}
+                                        </Button>
                                     </View>
-                                </View>
-                            ))}
+                                ))}
+                                <Button variant="primary" onPress={handleAddSection}>
+                                    <View className="flex-row items-center justify-center">
+                                        <Icon name="plus" size={24} color="#FFF" />
+                                        <Text className="ml-2">Add New Section</Text>
+                                    </View>
+                                </Button>
+                            </View>
                         </View>
-
-                        <Button
-                            variant="primary"
-                            onPress={handleSubmit}
-                            className="mt-8"
-                            disabled={!formCompleted || isPending}>
-                            <Text>{mode === 'create' ? 'Create Menu' : 'Update Menu'}</Text>
-                        </Button>
                     </View>
-                </View>
-            </ScrollView>
-        </Container>
+                </ScrollView>
+            </Container>
+        </>
     );
 }

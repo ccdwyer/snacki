@@ -8,7 +8,6 @@ import { Text } from '~/components/nativewindui/Text';
 export default function TruckDetails() {
     const router = useRouter();
     const { id, menuId } = useLocalSearchParams();
-    const menuIdString = Array.isArray(menuId) ? menuId[0] : menuId;
     return (
         <>
             <Stack.Screen
@@ -26,7 +25,7 @@ export default function TruckDetails() {
                 }}
             />
             <Container>
-                <MenuDetailsScreen menuId={menuIdString} />
+                <MenuDetailsScreen />
             </Container>
         </>
     );
