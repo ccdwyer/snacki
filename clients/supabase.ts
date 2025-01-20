@@ -13,17 +13,23 @@ import { Database } from '~/types/supabaseTypes';
 // it is used to encrypt/decrypt values stored in AsyncStorage.
 class LargeSecureStore {
     private async _encrypt(key: string, value: string) {
-        const encryptionKey = crypto.getRandomValues(new Uint8Array(256 / 8));
+        if (Platform.OS === 'web') {
+            return value; // On web, we don't encrypt the data
+        }
 
+        const encryptionKey = crypto.getRandomValues(new Uint8Array(256 / 8));
         const cipher = new aesjs.ModeOfOperation.ctr(encryptionKey, new aesjs.Counter(1));
         const encryptedBytes = cipher.encrypt(aesjs.utils.utf8.toBytes(value));
 
         await SecureStore.setItemAsync(key, aesjs.utils.hex.fromBytes(encryptionKey));
-
         return aesjs.utils.hex.fromBytes(encryptedBytes);
     }
 
     private async _decrypt(key: string, value: string) {
+        if (Platform.OS === 'web') {
+            return value; // On web, data is not encrypted
+        }
+
         const encryptionKeyHex = await SecureStore.getItemAsync(key);
         if (!encryptionKeyHex) {
             return encryptionKeyHex;
@@ -34,21 +40,19 @@ class LargeSecureStore {
             new aesjs.Counter(1)
         );
         const decryptedBytes = cipher.decrypt(aesjs.utils.hex.toBytes(value));
-
         return aesjs.utils.utf8.fromBytes(decryptedBytes);
     }
 
     async getItem(key: string) {
-        let encrypted: string | null = null;
         if (Platform.OS === 'web') {
             if (typeof localStorage === 'undefined') {
                 return null;
             }
-            encrypted = await localStorage.getItem(key);
-        } else {
-            encrypted = await AsyncStorage.getItem(key);
+            const value = localStorage.getItem(key);
+            return value;
         }
 
+        const encrypted = await AsyncStorage.getItem(key);
         if (!encrypted) {
             return encrypted;
         }
@@ -58,22 +62,22 @@ class LargeSecureStore {
 
     async removeItem(key: string) {
         if (Platform.OS === 'web') {
-            await localStorage.removeItem(key);
-        } else {
-            await AsyncStorage.removeItem(key);
+            localStorage.removeItem(key);
+            return;
         }
 
+        await AsyncStorage.removeItem(key);
         await SecureStore.deleteItemAsync(key);
     }
 
     async setItem(key: string, value: string) {
-        const encrypted = await this._encrypt(key, value);
-
         if (Platform.OS === 'web') {
-            await localStorage.setItem(key, encrypted);
-        } else {
-            await AsyncStorage.setItem(key, encrypted);
+            localStorage.setItem(key, value);
+            return;
         }
+
+        const encrypted = await this._encrypt(key, value);
+        await AsyncStorage.setItem(key, encrypted);
     }
 }
 
