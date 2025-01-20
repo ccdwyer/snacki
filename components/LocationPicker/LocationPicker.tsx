@@ -72,8 +72,8 @@ export const LocationPicker = ({ onLocationSelected, value }: LocationPickerProp
                         pickerId,
                     });
                 }}>
-                <FontAwesome name="map-pin" size={24} color="white" />
-                <Text>Pick New Location</Text>
+                <FontAwesome name="map-pin" size={24} color="black" />
+                <Text className="color-black">Pick New Location</Text>
             </Button>
         </View>
     );

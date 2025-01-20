@@ -10,7 +10,7 @@
         --card-foreground: 8 28 30;
         --popover: 230 230 235;
         --popover-foreground: 0 0 0;
-        --primary: 0 214 200;
+        --primary: 13 148 136;
         --primary-foreground: 255 255 255;
         --complementary: 155 107 158;
         --complementary-foreground: 255 255 255;
@@ -57,7 +57,7 @@
             --card-foreground: 255 255 255;
             --popover: 40 40 42;
             --popover-foreground: 255 255 255;
-            --primary: 0 214 200;
+            --primary: 13 148 136;
             --primary-foreground: 255 255 255;
             --complementary: 155 107 158;
             --complementary-foreground: 255 255 255;

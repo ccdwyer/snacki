@@ -48,3 +48,17 @@ export const useGetTruckById = (truckId: string) => {
         enabled: !!truckId,
     });
 };
+
+const getUsersFavoriteTrucks = async (userId: string) => {
+    const { data, error } = await supabaseClient
+        .from('food_truck_favorites')
+        .select(
+            `
+            *,
+            food_truck:food_trucks(*)
+        `
+        )
+        .eq('user_id', userId);
+    if (error) throw error;
+    return data;
+};

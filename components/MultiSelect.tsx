@@ -24,12 +24,28 @@ const MultiSelect = React.forwardRef<IMultiSelectRef, MultiSelectProps<any>>(
                         paddingVertical: 16,
                         borderWidth: 1,
                         borderColor: 'gray',
+                        paddingHorizontal: 16,
+                        borderRadius: 8,
                     },
                     props.style,
                 ]}
+                itemContainerStyle={[
+                    {
+                        backgroundColor: theme.colors.red,
+                    },
+                    props.itemContainerStyle,
+                ]}
+                selectedStyle={[
+                    {
+                        backgroundColor: theme.colors.primary,
+                        borderWidth: 0,
+                        borderRadius: 16,
+                    },
+                    props.selectedStyle,
+                ]}
                 selectedTextStyle={[
                     {
-                        color: theme.colors.text,
+                        color: '#000',
                     },
                     props.selectedTextStyle,
                 ]}

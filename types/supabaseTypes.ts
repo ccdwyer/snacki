@@ -1485,6 +1485,21 @@ export type Database = {
         }
         Returns: unknown
       }
+      get_food_trucks_within_distance: {
+        Args: {
+          lng_in: number
+          lat_in: number
+          distance_miles: number
+        }
+        Returns: {
+          id: string
+          user_id: string
+          name: string
+          lat: number
+          lng: number
+          distance_meters: number
+        }[]
+      }
       get_proj4_from_srid: {
         Args: {
           "": number

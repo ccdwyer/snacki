@@ -426,7 +426,7 @@ export default function MenuFormScreen({ mode, truckId, menuId }: MenuFormProps)
                                             variant="primary"
                                             onPress={() => handleAddItem(sectionIndex)}>
                                             <View className="flex-row items-center justify-center">
-                                                <Icon name="plus" size={20} color="#FFF" />
+                                                <Icon name="plus" size={20} color="#000" />
                                                 <Text className="ml-2">
                                                     Add New Item to {section.name}
                                                 </Text>
@@ -436,7 +436,7 @@ export default function MenuFormScreen({ mode, truckId, menuId }: MenuFormProps)
                                 ))}
                                 <Button variant="primary" onPress={handleAddSection}>
                                     <View className="flex-row items-center justify-center">
-                                        <Icon name="plus" size={24} color="#FFF" />
+                                        <Icon name="plus" size={24} color="#000" />
                                         <Text className="ml-2">Add New Section</Text>
                                     </View>
                                 </Button>

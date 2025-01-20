@@ -1,6 +1,8 @@
 import { Stack } from 'expo-router';
+import { useCallback, useEffect, useState } from 'react';
 import MapView, { Marker } from 'react-native-maps';
 
+import { supabaseClient } from '~/clients/supabase';
 import { Container } from '~/components/Container';
 
 const region = {
@@ -34,7 +36,58 @@ const markers = [
     },
 ];
 
+type GeoFoodTruck = {
+    id: string;
+    user_id: string;
+    name: string;
+    lat: number;
+    lng: number;
+    distance_meters: number;
+};
+
+const getFoodTrucksWithinDistance = async ({
+    lat,
+    lng,
+    distance,
+}: {
+    lat: number;
+    lng: number;
+    distance: number;
+}) => {
+    const { data, error } = await supabaseClient.rpc('get_food_trucks_within_distance', {
+        lat_in: lat,
+        lng_in: lng,
+        distance_miles: distance,
+    });
+
+    if (error) {
+        console.error(error);
+        return [];
+    }
+
+    return data;
+};
+
 export default function MapScreen() {
+    const [foodTrucks, setFoodTrucks] = useState<GeoFoodTruck[]>([]);
+
+    const fetchFoodTrucks = useCallback(async () => {
+        const trucks = await getFoodTrucksWithinDistance({
+            lat: 27.235996,
+            lng: -80.427775,
+            distance: 10,
+        });
+        setFoodTrucks(trucks);
+    }, []);
+
+    useEffect(() => {
+        fetchFoodTrucks();
+    }, []);
+
+    useEffect(() => {
+        console.log(foodTrucks);
+    }, [foodTrucks]);
+
     return (
         <>
             <Stack.Screen options={{ title: 'Events' }} />
