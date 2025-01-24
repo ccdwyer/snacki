@@ -4,7 +4,7 @@ import { createPortal } from 'react-dom';
 
 import { AlertProps, AlertRef } from './types';
 
-import { Button } from '~/components/nativewindui/Button';
+import { Button } from '~/components/Button';
 import { Text } from '~/components/nativewindui/Text';
 import { TextField } from '~/components/nativewindui/TextField';
 import { TextFieldRef } from '~/components/nativewindui/TextField/types';
@@ -175,7 +175,7 @@ const AlertComponent: React.ForwardRefRenderFunction<AlertRef, AlertProps> = (pr
                                         );
                                         onOpenChange(false);
                                     }}
-                                    variant="tonal">
+                                    variant="secondary">
                                     <Text>{button.text}</Text>
                                 </Button>
                             );

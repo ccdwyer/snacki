@@ -2,7 +2,7 @@ import { Stack, useLocalSearchParams, useRouter } from 'expo-router';
 
 import { Container } from '~/components/Container';
 import MenuDetailsScreen from '~/components/Screens/MenuDetailsScreen';
-import { Button } from '~/components/nativewindui/Button';
+import { Button } from '~/components/Button';
 import { Text } from '~/components/nativewindui/Text';
 
 export default function TruckDetails() {
@@ -15,7 +15,7 @@ export default function TruckDetails() {
                     title: 'Menu Details',
                     headerRight: () => (
                         <Button
-                            variant="plain"
+                            variant="ghost"
                             onPress={() => {
                                 router.push(`/owner/trucks/${id}/menu/${menuId}/edit`);
                             }}>

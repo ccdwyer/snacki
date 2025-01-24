@@ -8,7 +8,7 @@ import MultiSelect from '../MultiSelect';
 
 import { useUserAtom } from '~/atoms/AuthentictionAtoms';
 import { useCuisineTypes } from '~/atoms/GlobalDataAtoms';
-import { Button } from '~/components/nativewindui/Button';
+import { Button } from '~/components/Button';
 import { Text } from '~/components/nativewindui/Text';
 import {
     useGetTrucksForCurrentUser,

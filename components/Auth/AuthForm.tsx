@@ -1,13 +1,12 @@
 import { useSetAtom } from 'jotai';
-import React, { useState } from 'react';
+import React, { useRef, useState } from 'react';
 import { Platform, Pressable, View } from 'react-native';
 
 import { AuthTextField } from './AuthTextField';
 
 import { UserAtom } from '~/atoms/AuthentictionAtoms';
 import { supabaseClient } from '~/clients/supabase';
-import { Separator } from '~/components/Separator';
-import { Button } from '~/components/nativewindui/Button';
+import { Button } from '~/components/Button';
 import { Text } from '~/components/nativewindui/Text';
 
 type AuthFormProps = {
@@ -25,6 +24,12 @@ export function AuthForm({ type, onCancel, onSuccess, onError, onStateChange }: 
     const [password, setPassword] = useState('');
     const [loading, setLoading] = useState(false);
     const setUser = useSetAtom(UserAtom);
+
+    // Refs for form fields
+    const firstNameRef = useRef<any>(null);
+    const lastNameRef = useRef<any>(null);
+    const emailRef = useRef<any>(null);
+    const passwordRef = useRef<any>(null);
 
     const handleSubmit = async () => {
         try {
@@ -87,83 +92,115 @@ export function AuthForm({ type, onCancel, onSuccess, onError, onStateChange }: 
     const isDisabled = loading || !email || (type !== 'forgot-password' && !password);
 
     return (
-        <View className="flex-1 justify-center gap-4 px-8 py-4">
-            <Text variant="title1" className="text-center">
-                {type === 'signup'
-                    ? 'Create your account'
-                    : type === 'login'
-                      ? 'Log in to your account'
-                      : 'Reset your password'}
-            </Text>
-            {type === 'signup' && (
-                <>
-                    <Text className="mt-[-16] text-center text-sm">Welcome to Snacki!</Text>
-                    <View className="rounded-lg bg-white/70 dark:bg-black/70">
+        <View className="gap-6">
+            <View className="items-center gap-2">
+                <Text variant="largeTitle" className="text-center font-semibold">
+                    {type === 'signup'
+                        ? 'Create Account'
+                        : type === 'login'
+                          ? 'Welcome Back'
+                          : 'Reset Password'}
+                </Text>
+                <Text variant="caption1" className="text-center text-secondary">
+                    {type === 'signup'
+                        ? 'Sign up to get started'
+                        : type === 'login'
+                          ? 'Sign in to continue'
+                          : 'Enter your email to reset your password'}
+                </Text>
+            </View>
+
+            <View className="gap-4">
+                {type === 'signup' && (
+                    <View className="gap-4">
                         <AuthTextField
+                            ref={firstNameRef}
                             label="First Name"
                             value={firstName}
                             onChangeText={setFirstName}
                             textContentType="name"
                             autoCapitalize="words"
+                            returnKeyType="next"
+                            onSubmitEditing={() => lastNameRef.current?.focus()}
                         />
-                        <Separator />
                         <AuthTextField
+                            ref={lastNameRef}
                             label="Last Name"
                             value={lastName}
                             onChangeText={setLastName}
                             textContentType="name"
                             autoCapitalize="words"
+                            returnKeyType="next"
+                            onSubmitEditing={() => emailRef.current?.focus()}
                         />
                     </View>
-                </>
-            )}
-            <View className="rounded-lg bg-white/70 dark:bg-black/70">
+                )}
+
                 <AuthTextField
+                    ref={emailRef}
                     label="Email"
                     value={email}
                     onChangeText={setEmail}
                     keyboardType="email-address"
                     textContentType="emailAddress"
+                    returnKeyType={type === 'forgot-password' ? 'go' : 'next'}
+                    onSubmitEditing={() => {
+                        if (type === 'forgot-password') {
+                            handleSubmit();
+                        } else {
+                            passwordRef.current?.focus();
+                        }
+                    }}
                 />
+
                 {type !== 'forgot-password' && (
-                    <>
-                        <Separator />
-                        <AuthTextField
-                            label="Password"
-                            value={password}
-                            onChangeText={setPassword}
-                            secureTextEntry
-                            textContentType="password"
-                        />
-                    </>
+                    <AuthTextField
+                        ref={passwordRef}
+                        label="Password"
+                        value={password}
+                        onChangeText={setPassword}
+                        secureTextEntry
+                        textContentType="password"
+                        returnKeyType="go"
+                        blurOnSubmit
+                        onSubmitEditing={handleSubmit}
+                    />
+                )}
+
+                {type === 'login' && (
+                    <Pressable
+                        onPress={() => onStateChange?.('forgot-password')}
+                        className="items-center">
+                        <Text variant="caption1" className="text-primary">
+                            Forgot your password?
+                        </Text>
+                    </Pressable>
                 )}
             </View>
-            {type === 'login' && (
-                <Pressable onPress={() => onStateChange?.('forgot-password')}>
-                    <Text className="text-center text-sm text-primary">Forgot your password?</Text>
-                </Pressable>
-            )}
-            <View className="flex-1 justify-end">
+
+            <View className="gap-3">
                 <Button
                     disabled={isDisabled}
-                    loading={loading}
-                    size={Platform.select({ ios: 'lg', default: 'md' })}
+                    variant="primary"
+                    size={Platform.select({ ios: 'lg', default: 'default' })}
                     onPress={handleSubmit}>
-                    <Text className="dark:text-black">
-                        {type === 'signup'
-                            ? 'Create Account'
-                            : type === 'login'
-                              ? 'Log In'
-                              : 'Send Reset Link'}
+                    <Text className="font-medium">
+                        {loading
+                            ? 'Loading...'
+                            : type === 'signup'
+                              ? 'Create Account'
+                              : type === 'login'
+                                ? 'Sign In'
+                                : 'Reset Password'}
                     </Text>
                 </Button>
+                <Button
+                    variant="secondary"
+                    size={Platform.select({ ios: 'lg', default: 'default' })}
+                    onPress={onCancel}>
+                    <Text className="font-medium">Cancel</Text>
+                </Button>
             </View>
-            <Button
-                onPress={onCancel}
-                variant="secondary"
-                size={Platform.select({ ios: 'lg', default: 'md' })}>
-                <Text className="text-primary">Cancel</Text>
-            </Button>
         </View>
     );
 }

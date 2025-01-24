@@ -7,7 +7,7 @@ import { useUpdatePassword } from '~/atoms/AuthentictionAtoms';
 import { supabaseClient } from '~/clients/supabase';
 import { AuthBackground } from '~/components/Auth/AuthBackground';
 import { AuthTextField } from '~/components/Auth/AuthTextField';
-import { Button } from '~/components/nativewindui/Button';
+import { Button } from '~/components/Button';
 import { Text } from '~/components/nativewindui/Text';
 
 export default function ResetPasswordScreen() {
@@ -112,7 +112,7 @@ export default function ResetPasswordScreen() {
             if (resetError) throw resetError;
 
             // Show success message and navigate back to sign in
-            router.replace('/auth/sign-in?message=Check your email for a password reset link');
+            router.replace('/auth');
         } catch (err) {
             setError(err instanceof Error ? err.message : 'An error occurred');
         } finally {
@@ -173,7 +173,7 @@ export default function ResetPasswordScreen() {
                             <>
                                 <Button
                                     disabled={!email || loading}
-                                    size={Platform.select({ ios: 'lg', default: 'md' })}
+                                    size={Platform.select({ ios: 'lg', default: 'default' })}
                                     onPress={handleRequestNewLink}>
                                     <Text className="dark:text-black">
                                         {loading ? 'Sending...' : 'Send Reset Link'}
@@ -182,7 +182,7 @@ export default function ResetPasswordScreen() {
                                 <Button
                                     variant="secondary"
                                     onPress={() => router.replace('/auth')}
-                                    size={Platform.select({ ios: 'lg', default: 'md' })}>
+                                    size={Platform.select({ ios: 'lg', default: 'default' })}>
                                     <Text className="text-primary">Cancel</Text>
                                 </Button>
                             </>
@@ -191,7 +191,7 @@ export default function ResetPasswordScreen() {
                                 disabled={
                                     !newPassword || !confirmPassword || loading || !params.token
                                 }
-                                size={Platform.select({ ios: 'lg', default: 'md' })}
+                                size={Platform.select({ ios: 'lg', default: 'default' })}
                                 onPress={handleSubmit}>
                                 <Text className="dark:text-black">Reset Password</Text>
                             </Button>

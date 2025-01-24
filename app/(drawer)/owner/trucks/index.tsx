@@ -5,7 +5,7 @@ import { Pressable, View } from 'react-native';
 import { Container } from '~/components/Container';
 import { ErrorBoundary } from '~/components/Screens/ErrorBoundary';
 import { ActivityIndicator } from '~/components/nativewindui/ActivityIndicator';
-import { Button } from '~/components/nativewindui/Button';
+import { Button } from '~/components/Button';
 import { Text } from '~/components/nativewindui/Text';
 import { useColorScheme } from '~/lib/useColorScheme';
 import { useGetTrucksForCurrentUser } from '~/queries/UsersTruckQueries';
@@ -33,7 +33,7 @@ export default function TruckList() {
                         title: 'My Food Trucks',
                         headerRight: () => (
                             <Button
-                                variant="plain"
+                                variant="ghost"
                                 className="mr-2"
                                 onPress={() => router.push('/owner/trucks/create')}>
                                 <Icon name="plus" size={24} color={colors.primary} />

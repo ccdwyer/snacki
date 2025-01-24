@@ -10,7 +10,7 @@ export default function Root({ children }: { children: React.ReactNode }) {
             <head>
                 <meta charSet="utf-8" />
                 <meta httpEquiv="X-UA-Compatible" content="IE=edge" />
-
+                <link rel="stylesheet" href="/global.css" />
                 {/*
           This viewport disables scaling which makes the mobile website act more like a native app.
           However this does reduce built-in accessibility. If you want to enable scaling, use this instead:

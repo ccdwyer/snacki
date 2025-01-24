@@ -9,7 +9,7 @@ import { ErrorBoundary } from './ErrorBoundary';
 
 import { useUserAtom } from '~/atoms/AuthentictionAtoms';
 import { EventListItem } from '~/components/Entities/EventListItem';
-import { Button } from '~/components/nativewindui/Button';
+import { Button } from '~/components/Button';
 import { Text } from '~/components/nativewindui/Text';
 import { cn } from '~/lib/cn';
 import { useColorScheme } from '~/lib/useColorScheme';
@@ -63,7 +63,7 @@ const MenuListItem = ({ menu, isOwner, truckId }: MenuListItemProps) => {
         return (
             <View className="ml-[-8] flex-row pb-4">
                 <Button
-                    variant="plain"
+                    variant="ghost"
                     className="w-32 justify-center bg-red-500 px-4"
                     onPress={handleDelete}>
                     <Text className="text-white">Delete</Text>

@@ -6,7 +6,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { supabaseClient } from '~/clients/supabase';
 import { AuthBackground } from '~/components/Auth/AuthBackground';
 import { AuthTextField } from '~/components/Auth/AuthTextField';
-import { Button } from '~/components/nativewindui/Button';
+import { Button } from '~/components/Button';
 import { Text } from '~/components/nativewindui/Text';
 
 export default function ForgotPasswordScreen() {
@@ -28,7 +28,7 @@ export default function ForgotPasswordScreen() {
             if (resetError) throw resetError;
 
             // Show success message and navigate back to sign in
-            router.replace('/sign-in?message=Check your email for a password reset link');
+            router.replace('/auth');
         } catch (err) {
             setError(err instanceof Error ? err.message : 'An error occurred');
         } finally {
@@ -61,7 +61,7 @@ export default function ForgotPasswordScreen() {
                     <View className="flex-1 justify-end gap-4">
                         <Button
                             disabled={!email || loading}
-                            size={Platform.select({ ios: 'lg', default: 'md' })}
+                            size={Platform.select({ ios: 'lg', default: 'default' })}
                             onPress={handleSubmit}>
                             <Text className="dark:text-black">
                                 {loading ? 'Sending...' : 'Send Reset Link'}
@@ -70,7 +70,7 @@ export default function ForgotPasswordScreen() {
                         <Button
                             variant="secondary"
                             onPress={() => router.replace('/auth')}
-                            size={Platform.select({ ios: 'lg', default: 'md' })}>
+                            size={Platform.select({ ios: 'lg', default: 'default' })}>
                             <Text className="text-primary">Cancel</Text>
                         </Button>
                     </View>

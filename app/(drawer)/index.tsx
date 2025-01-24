@@ -11,7 +11,7 @@ import Animated from 'react-native-reanimated';
 import { useCuisineTypes } from '~/atoms/GlobalDataAtoms';
 import { supabaseClient } from '~/clients/supabase';
 import MultiSelect from '~/components/MultiSelect';
-import { Button } from '~/components/nativewindui/Button';
+import { Button } from '~/components/Button';
 import { Text } from '~/components/nativewindui/Text';
 import { cn } from '~/lib/cn';
 

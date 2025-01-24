@@ -1,7 +1,7 @@
 import React from 'react';
 import { View, Image, ActivityIndicator } from 'react-native';
 
-import { Button } from '../nativewindui/Button';
+import { Button } from '~/components/Button';
 
 import { Text } from '~/components/nativewindui/Text';
 
@@ -40,7 +40,11 @@ export const ErrorBoundary = ({
             <Text variant="body" className="mt-[-8]">
                 {error?.message}
             </Text>
-            <Button className="mt-8" onPress={() => dismiss?.()}>
+            <Button 
+                variant="primary" 
+                className="mt-8" 
+                onPress={() => dismiss?.()}
+            >
                 <Text className="font-bold">Try Again</Text>
             </Button>
         </View>

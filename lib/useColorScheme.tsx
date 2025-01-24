@@ -8,6 +8,21 @@ import { COLORS } from '~/theme/colors';
 function useColorScheme() {
     const { colorScheme, setColorScheme: setNativeWindColorScheme } = useNativewindColorScheme();
 
+    // useEffect(() => {
+    //     if (Platform.OS !== 'web') return;
+
+    //     if (window?.matchMedia?.('(prefers-color-scheme: dark)')?.matches ?? false) {
+    //         setNativeWindColorScheme('dark');
+    //     } else {
+    //         setNativeWindColorScheme('light');
+    //     }
+
+    //     window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', event => {
+    //         const newColorScheme = event.matches ? 'dark' : 'light';
+    //         setNativeWindColorScheme(newColorScheme);
+    //     });
+    // }, []);
+
     async function setColorScheme(colorScheme: 'light' | 'dark') {
         if (Platform.OS === 'web') return;
         setNativeWindColorScheme(colorScheme);
@@ -24,11 +39,11 @@ function useColorScheme() {
     }
 
     return {
-        colorScheme: Platform.OS === 'web' ? 'light' : (colorScheme ?? 'light'),
-        isDarkColorScheme: Platform.OS === 'web' ? false : colorScheme === 'dark',
+        colorScheme: Platform.OS === 'web' ? (window?.matchMedia?.('(prefers-color-scheme: dark)')?.matches ? 'dark': 'light') : (colorScheme ?? 'light'),
+        isDarkColorScheme: Platform.OS === 'web' ? window?.matchMedia?.('(prefers-color-scheme: dark)')?.matches : colorScheme === 'dark',
         setColorScheme,
         toggleColorScheme,
-        colors: COLORS[colorScheme ?? 'light'],
+        colors: COLORS[Platform.OS === 'web' ? (window?.matchMedia?.('(prefers-color-scheme: dark)')?.matches ? 'dark': 'light') : (colorScheme ?? 'light')],
     };
 }
 

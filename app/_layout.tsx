@@ -30,7 +30,7 @@ export const scheme = 'snacki';
 
 // Configure routes that can be deep linked to
 export const linking = {
-    prefixes: ['snacki://', 'https://snacki.app'],
+    prefixes: ['snacki://', 'https://snackiapp.com'],
     config: {
         initialRouteName: '(drawer)',
         screens: {

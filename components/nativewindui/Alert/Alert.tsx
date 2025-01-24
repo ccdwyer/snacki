@@ -14,7 +14,7 @@ import Animated, {
 
 import { AlertProps, AlertRef } from './types';
 
-import { Button } from '~/components/nativewindui/Button';
+import { Button } from '~/components/Button';
 import { Text } from '~/components/nativewindui/Text';
 import { TextField } from '~/components/nativewindui/TextField';
 import { TextFieldRef } from '~/components/nativewindui/TextField/types';
@@ -240,7 +240,7 @@ const Alert = React.forwardRef<AlertRef, AlertProps>(
                                                         )}>
                                                         <AlertDialogPrimitive.Cancel asChild>
                                                             <Button
-                                                                variant="plain"
+                                                                variant="ghost"
                                                                 onPress={() => {
                                                                     button.onPress?.(
                                                                         prompt?.type ===
@@ -271,7 +271,7 @@ const Alert = React.forwardRef<AlertRef, AlertProps>(
                                                         )}>
                                                         <AlertDialogPrimitive.Action asChild>
                                                             <Button
-                                                                variant="tonal"
+                                                                variant="secondary"
                                                                 className="bg-destructive/10 dark:bg-destructive/25"
                                                                 onPress={() => {
                                                                     button.onPress?.(
@@ -302,7 +302,7 @@ const Alert = React.forwardRef<AlertRef, AlertProps>(
                                                     )}>
                                                     <AlertDialogPrimitive.Action asChild>
                                                         <Button
-                                                            variant="plain"
+                                                            variant="ghost"
                                                             onPress={() => {
                                                                 button.onPress?.(
                                                                     prompt?.type ===

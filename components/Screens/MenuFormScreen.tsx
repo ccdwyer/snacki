@@ -7,7 +7,7 @@ import { View, Alert, TextInput, ScrollView } from 'react-native';
 import { Container } from '../Container';
 
 import { useUserAtom } from '~/atoms/AuthentictionAtoms';
-import { Button } from '~/components/nativewindui/Button';
+import { Button } from '~/components/Button';
 import { Text } from '~/components/nativewindui/Text';
 import { useGetMenuById } from '~/queries/MenuQueries';
 import {
@@ -284,7 +284,7 @@ export default function MenuFormScreen({ mode, truckId, menuId }: MenuFormProps)
                     title: mode === 'create' ? 'Create Menu' : 'Update Menu',
                     headerRight: () => (
                         <Button
-                            variant="plain"
+                            variant="ghost"
                             onPress={handleSubmit}
                             disabled={!formCompleted || isPending}>
                             <Text className="text-primary">Save</Text>

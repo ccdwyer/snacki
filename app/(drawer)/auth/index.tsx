@@ -6,26 +6,25 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { UserAtom } from '~/atoms/AuthentictionAtoms';
 import { supabaseClient } from '~/clients/supabase';
-import { AuthBackground } from '~/components/Auth/AuthBackground';
 import { AuthForm } from '~/components/Auth/AuthForm';
 import { AlertAnchor } from '~/components/nativewindui/Alert';
 import { AlertRef } from '~/components/nativewindui/Alert/types';
-import { Button } from '~/components/nativewindui/Button';
+import { Button } from '~/components/Button';
 import { Text } from '~/components/nativewindui/Text';
+import { useColorScheme } from '~/lib/useColorScheme';
 
 type AuthScreenState = 'pick-a-screen' | 'signup' | 'login' | 'forgot-password';
 
-export default function AuthIndexScreen() {
+export default function AuthScreen() {
     const [screenState, setScreenState] = useState<AuthScreenState>('pick-a-screen');
     const alertRef = useRef<AlertRef>(null);
     const [user, setUser] = useAtom(UserAtom);
     const params = useLocalSearchParams<{ screen?: AuthScreenState }>();
+    const { colorScheme } = useColorScheme();
 
     // Set initial screen state from params
     useEffect(() => {
-        console.log('Auth screen params:', params);
         if (params.screen && !user) {
-            console.log('Setting screen state to:', params.screen);
             setScreenState(params.screen);
         }
     }, [params.screen, user]);
@@ -38,104 +37,132 @@ export default function AuthIndexScreen() {
         });
     };
 
-    const handleSuccess = (message: string) => {
+    const handleSuccess = (message?: string) => {
         alertRef.current?.alert({
             title: 'Success',
-            message,
+            message: message || 'Operation successful',
             buttons: [{ text: 'OK', style: 'cancel' }],
         });
     };
 
     const handleSignOut = async () => {
-        const { error } = await supabaseClient.auth.signOut();
-        if (error) {
-            handleError(error.message);
-        } else {
+        try {
+            // Even if there's an error signing out from Supabase,
+            // we should still clear the local user state
+            const { error } = await supabaseClient.auth.signOut();
             setUser(null);
+            
+            if (error && error.message !== 'Auth session missing') {
+                handleError(error.message);
+            }
+        } catch (error) {
+            // If there's any other error, still clear the local state
+            setUser(null);
+            if (error instanceof Error && error.message !== 'Auth session missing') {
+                handleError(error.message);
+            }
         }
     };
 
     if (user) {
         return (
-            <>
-                <AuthBackground />
-                <SafeAreaView style={{ flex: 1 }}>
-                    <View className="flex-1 justify-center gap-4 px-8 py-4">
-                        <Text variant="title2" className="text-center">
-                            Account Details
-                        </Text>
-                        <View className="rounded-lg bg-white/70 p-4 dark:bg-black/70">
-                            <Text className="mb-2 font-medium">
-                                Name:{' '}
-                                <Text className="font-normal">
-                                    {user.user_metadata.first_name} {user.user_metadata.last_name}
-                                </Text>
+            <SafeAreaView className="flex-1 bg-background">
+                <View className="mx-auto flex-1 w-full max-w-md px-8 py-4">
+                    <View className="flex-1 justify-center gap-6">
+                        <View className="items-center gap-2">
+                            <Text variant="largeTitle" className="text-center font-semibold">
+                                Account
                             </Text>
-                            <Text className="mb-2 font-medium">
-                                Email: <Text className="font-normal">{user.email}</Text>
+                            <Text variant="caption1" className="text-center text-secondary">
+                                Manage your account details
                             </Text>
-                            <Text className="font-medium">
-                                Member since:{' '}
-                                <Text className="font-normal">
-                                    {new Date(user.created_at).toLocaleDateString()}
-                                </Text>
-                            </Text>
+                        </View>
+                        <View className="web:shadow-lg rounded-2xl bg-card p-6">
+                            <View className="gap-4">
+                                <View>
+                                    <Text variant="caption1" className="text-secondary">
+                                        Name
+                                    </Text>
+                                    <Text variant="body" className="text-primary">
+                                        {user.user_metadata.first_name} {user.user_metadata.last_name}
+                                    </Text>
+                                </View>
+                                <View>
+                                    <Text variant="caption1" className="text-secondary">
+                                        Email
+                                    </Text>
+                                    <Text variant="body" className="text-primary">
+                                        {user.email}
+                                    </Text>
+                                </View>
+                                <View>
+                                    <Text variant="caption1" className="text-secondary">
+                                        Member since
+                                    </Text>
+                                    <Text variant="body" className="text-primary">
+                                        {new Date(user.created_at).toLocaleDateString()}
+                                    </Text>
+                                </View>
+                            </View>
                         </View>
                         <View className="flex-1 justify-end">
                             <Button
                                 onPress={handleSignOut}
-                                variant="tonal"
-                                size={Platform.select({ ios: 'lg', default: 'md' })}>
+                                variant="secondary"
+                                size={Platform.select({ ios: 'lg', default: 'default' })}>
                                 <Text>Sign Out</Text>
                             </Button>
                         </View>
                     </View>
-                </SafeAreaView>
-                <AlertAnchor ref={alertRef} />
-            </>
+                </View>
+                <AlertAnchor ref={alertRef} title="" buttons={[]} />
+            </SafeAreaView>
         );
     }
 
     return (
-        <>
-            <AuthBackground />
-            <SafeAreaView style={{ flex: 1 }}>
-                {screenState === 'pick-a-screen' && (
-                    <View className="ios:justify-end flex-1 justify-center gap-4 px-8 py-4">
-                        <Button
-                            onPress={() => setScreenState('signup')}
-                            size={Platform.select({ ios: 'lg', default: 'md' })}>
-                            <Text className="dark:text-black">Sign up free</Text>
-                        </Button>
-                        <Button
-                            onPress={() => setScreenState('login')}
-                            variant="primary"
-                            size={Platform.select({ ios: 'lg', default: 'md' })}>
-                            <Text className="dark:text-black">Log in</Text>
-                        </Button>
-                    </View>
-                )}
-
-                {(screenState === 'signup' ||
-                    screenState === 'login' ||
-                    screenState === 'forgot-password') && (
-                    <AuthForm
-                        type={screenState}
-                        onCancel={() => setScreenState('pick-a-screen')}
-                        onError={handleError}
-                        onStateChange={setScreenState}
-                        onSuccess={(message) => {
-                            if (message) {
-                                handleSuccess(message);
-                            } else if (screenState === 'forgot-password') {
-                                handleSuccess('Check your email for a password reset link');
-                                setScreenState('login');
-                            }
-                        }}
-                    />
-                )}
-            </SafeAreaView>
-            <AlertAnchor ref={alertRef} />
-        </>
+        <SafeAreaView className="flex-1 bg-background">
+            <View className="mx-auto flex-1 w-full max-w-md px-8 py-4">
+                <View className="flex-1 justify-center">
+                    {screenState === 'pick-a-screen' && (
+                        <View className="web:shadow-lg web:bg-card web:p-8 web:rounded-2xl gap-6">
+                            <View className="items-center gap-2">
+                                <Text variant="largeTitle" className="text-center font-semibold">
+                                    Welcome to Snacki
+                                </Text>
+                                <Text variant="caption1" className="text-center text-secondary">
+                                    Sign in or create an account to continue
+                                </Text>
+                            </View>
+                            <View className="gap-3">
+                                <Button
+                                    onPress={() => setScreenState('signup')}
+                                    variant="primary"
+                                    size={Platform.select({ ios: 'lg', default: 'default' })}>
+                                    <Text className="font-medium">Create Account</Text>
+                                </Button>
+                                <Button
+                                    onPress={() => setScreenState('login')}
+                                    variant="secondary"
+                                    size={Platform.select({ ios: 'lg', default: 'default' })}>
+                                    <Text className="font-medium">Sign In</Text>
+                                </Button>
+                            </View>
+                        </View>
+                    )}
+                    {(screenState === 'signup' || screenState === 'login') && (
+                        <View className="web:shadow-lg web:bg-card web:p-8 web:rounded-2xl">
+                            <AuthForm
+                                type={screenState}
+                                onSuccess={handleSuccess}
+                                onError={handleError}
+                                onCancel={() => setScreenState('pick-a-screen')}
+                            />
+                        </View>
+                    )}
+                </View>
+            </View>
+            <AlertAnchor ref={alertRef} title="" buttons={[]} />
+        </SafeAreaView>
     );
 }

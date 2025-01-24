@@ -7,7 +7,7 @@ import {
     LocationPickerLocationSelectedEvent,
 } from './LocationPickerEmitter';
 import { useScreenId } from '../ScreenIdProvider';
-import { Button } from '../nativewindui/Button';
+import { Button } from '~/components/Button';
 import { Text } from '../nativewindui/Text';
 
 import { generateRandomBase64 } from '~/lib/generateRandomBase64';

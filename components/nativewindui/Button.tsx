@@ -11,9 +11,9 @@ import { COLORS } from '~/theme/colors';
 const buttonVariants = cva('flex-row items-center justify-center gap-2', {
     variants: {
         variant: {
-            primary: 'ios:active:opacity-80 bg-primary',
-            secondary: 'ios:border-primary ios:active:bg-primary/5 border border-foreground/40',
-            tonal: 'ios:bg-primary/10 dark:ios:bg-primary/10 ios:active:bg-primary/15 bg-primary/15 dark:bg-primary/30',
+            primary: 'bg-primary web:bg-primary ios:active:opacity-80',
+            secondary: 'border border-border web:border-border ios:active:bg-primary/5',
+            tonal: 'bg-primary/15 dark:bg-primary/30 ios:active:bg-primary/15',
             plain: 'ios:active:opacity-70',
         },
         size: {
@@ -48,10 +48,10 @@ const androidRootVariants = cva('overflow-hidden', {
 const buttonTextVariants = cva('font-medium', {
     variants: {
         variant: {
-            primary: 'text-black',
-            secondary: 'ios:text-primary text-foreground',
-            tonal: 'ios:text-primary text-foreground',
-            plain: 'text-foreground',
+            primary: 'text-white web:text-white',
+            secondary: 'text-primary web:text-primary',
+            tonal: 'text-primary web:text-primary',
+            plain: 'text-foreground web:text-foreground',
         },
         size: {
             none: '',

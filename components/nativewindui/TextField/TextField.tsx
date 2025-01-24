@@ -10,6 +10,7 @@ import {
     ViewStyle,
     type NativeSyntheticEvent,
     type TextInputFocusEventData,
+    Platform,
 } from 'react-native';
 import Animated, {
     FadeIn,
@@ -52,6 +53,7 @@ const TextField = React.forwardRef<TextFieldRef, TextFieldProps>(
     ) => {
         const inputRef = useAugmentedRef({ ref, methods: { focus, blur, clear } });
         const [isFocused, setIsFocused] = React.useState(false);
+        const isWeb = Platform.OS === 'web';
 
         const [value = '', onChangeText] = useControllableState({
             prop: valueProp,
@@ -83,8 +85,10 @@ const TextField = React.forwardRef<TextFieldRef, TextFieldProps>(
 
         const InputWrapper = materialVariant === 'filled' ? FilledWrapper : FilledWrapper;
 
+        const Container = isWeb ? View : Pressable;
+
         return (
-            <Pressable
+            <Container
                 className={rootVariants({
                     variant: materialVariant,
                     state: getInputState({
@@ -96,7 +100,7 @@ const TextField = React.forwardRef<TextFieldRef, TextFieldProps>(
                 })}
                 style={materialRingColor ? { borderColor: materialRingColor } : undefined}
                 disabled={editable === false}
-                onPress={focus}>
+                onPress={isWeb ? undefined : focus}>
                 <View
                     className={innerRootVariants({
                         variant: materialVariant,
@@ -155,7 +159,7 @@ const TextField = React.forwardRef<TextFieldRef, TextFieldProps>(
                     )}
                     {rightView}
                 </View>
-            </Pressable>
+            </Container>
         );
     }
 );
