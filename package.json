@@ -9,7 +9,8 @@
         "lint": "eslint \"**/*.{js,jsx,ts,tsx}\" && prettier -c \"**/*.{js,jsx,ts,tsx,json}\"",
         "format": "eslint \"**/*.{js,jsx,ts,tsx}\" --fix && prettier \"**/*.{js,jsx,ts,tsx,json}\" --write",
         "web": "expo start --web",
-        "deploy-web": "expo export -p web && netlify deploy --prod --dir dist"
+        "deploy-web": "expo export -p web && netlify deploy --prod --dir dist",
+        "generate-types": "./generate_types.sh"
     },
     "dependencies": {
         "@expo-google-fonts/permanent-marker": "^0.2.3",
