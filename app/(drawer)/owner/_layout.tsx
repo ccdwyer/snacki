@@ -32,6 +32,12 @@ export default function TabLayout() {
                 }}
             />
             <Stack.Screen
+                name="owner/companies/[companyId]/events/create"
+                options={{
+                    title: 'Create Event',
+                }}
+            />
+            <Stack.Screen
                 name="owner/companies/[companyId]/trucks"
                 options={{
                     title: 'Trucks',

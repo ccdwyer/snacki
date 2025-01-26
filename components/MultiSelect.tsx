@@ -79,7 +79,7 @@ const MultiSelect = React.forwardRef<IMultiSelectRef, MultiSelectProps<any>>(
                                 )}>
                                 <Text>{item.name}</Text>
                                 {item.description && (
-                                    <Text variant="caption1">Ex: {item.description}</Text>
+                                    <Text variant="caption1">{item.description}</Text>
                                 )}
                             </View>
                         );

@@ -32,10 +32,19 @@ export const LocationPickerModal = () => {
                 setPickerId(event.pickerId);
             }
         );
+        const closeSubscription = LocationPickerEmitter.addListener(
+            'closePicker',
+            (event: { pickerId: string; screenId: string }) => {
+                console.log('closePicker', event);
+                setPickerId(null);
+            }
+        );
         return () => {
             subscription.remove();
+            closeSubscription.remove();
         };
     }, []);
+
     if (!pickerId) return null;
     return (
         <View className="absolute bottom-4 left-4 right-4 top-4 rounded-lg bg-card p-4">
@@ -48,7 +57,10 @@ export const LocationPickerModal = () => {
                 }}
                 onPress={async (data, details = null) => {
                     // 'details' is provided when fetchDetails = true
+                    console.log('data', data);
+                    console.log('details', details);
                     const geolocation = await getGeolocation(data.description);
+                    console.log('geolocation', geolocation);
                     const event = {
                         pickerId,
                         data,

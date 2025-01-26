@@ -65,14 +65,19 @@ export default function TruckFormScreen({ mode, truckId }: TruckFormProps) {
         },
     });
 
+    useEffect(() => {
+        console.log(gpsCoordinates);
+    }, [gpsCoordinates]);
+
     const { data: truck, isLoading: loadingTruck } = useGetTruckById(truckId || '', {
-        enabled: mode === 'update' && !!truckId
+        enabled: mode === 'update' && !!truckId,
     });
     const loading = isPending || (mode === 'update' && loadingTruck);
-    const formCompleted = name.trim().length > 0 && 
-        description.trim().length > 0 && 
-        address.trim().length > 0 && 
-        rangeOfService.trim().length > 0 && 
+    const formCompleted =
+        name.trim().length > 0 &&
+        description.trim().length > 0 &&
+        address.trim().length > 0 &&
+        rangeOfService.trim().length > 0 &&
         !!gpsCoordinates;
 
     useEffect(() => {
@@ -97,9 +102,7 @@ export default function TruckFormScreen({ mode, truckId }: TruckFormProps) {
                 lat: truck.lat ?? 0,
                 lng: truck.lng ?? 0,
             });
-            setSelectedCuisineTypes(
-                truck.cuisine_types?.map((ct) => ct.cuisine_types.id) ?? []
-            );
+            setSelectedCuisineTypes(truck.cuisine_types?.map((ct) => ct.cuisine_types.id) ?? []);
         }
     }, [mode, truck, truckId, loadingTruck]);
 
@@ -165,9 +168,23 @@ export default function TruckFormScreen({ mode, truckId }: TruckFormProps) {
 
                     <LocationPicker
                         value={value}
-                        onChange={(newValue) => {
-                            setAddress(newValue.address);
-                            setGpsCoordinates(newValue.gpsCoordinates);
+                        onLocationSelected={(event) => {
+                            console.log('TruckFormScreen received location:', event);
+                            if (!event.geolocation?.results?.[0]) {
+                                console.log('No geolocation results in event');
+                                return;
+                            }
+                            const result = event.geolocation.results[0];
+                            console.log('Setting new location:', {
+                                address: result.formatted_address,
+                                lat: result.geometry.location.lat,
+                                lng: result.geometry.location.lng,
+                            });
+                            setAddress(event?.details?.description ?? result.formatted_address);
+                            setGpsCoordinates({
+                                lat: result.geometry.location.lat,
+                                lng: result.geometry.location.lng,
+                            });
                         }}
                     />
 

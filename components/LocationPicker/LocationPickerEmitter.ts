@@ -8,6 +8,6 @@ export const LocationPickerEmitter = new EventEmitter();
 export type LocationPickerLocationSelectedEvent = {
     pickerId: string;
     data: GooglePlaceData;
-    details: GooglePlaceDetail | null;
+    details: GooglePlaceDetail & { description: string };
     geolocation: GeolocationResponse;
 };

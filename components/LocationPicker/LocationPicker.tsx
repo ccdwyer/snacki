@@ -25,7 +25,6 @@ interface LocationPickerProps {
 
 export const LocationPicker = ({ onLocationSelected, value }: LocationPickerProps) => {
     const { current: pickerId } = useRef<string | null>(generateRandomBase64(25));
-
     const screenId = useScreenId();
 
     useEffect(() => {
@@ -35,7 +34,9 @@ export const LocationPicker = ({ onLocationSelected, value }: LocationPickerProp
                 if (event.pickerId !== pickerId) {
                     return;
                 }
-
+                // First close the picker
+                LocationPickerEmitter.emit('closePicker');
+                // Then notify about the selected location
                 onLocationSelected(event);
             }
         );
@@ -43,7 +44,7 @@ export const LocationPicker = ({ onLocationSelected, value }: LocationPickerProp
             listener.remove();
             LocationPickerEmitter.emit('closePicker');
         };
-    }, []);
+    }, [pickerId, onLocationSelected]);
 
     if (!value?.address || !value?.gpsCoordinates) {
         return (

@@ -19,11 +19,20 @@ import { ThemeToggle } from '~/components/ThemeToggle';
 import { useDeepLinks } from '~/hooks/useDeepLinks';
 import { useColorScheme, useInitialAndroidBarSync } from '~/lib/useColorScheme';
 import { NAV_THEME } from '~/theme';
+import { requestForegroundPermissionsAsync } from 'expo-location';
 
 export {
     // Catch any errors thrown by the Layout component.
     ErrorBoundary,
 } from 'expo-router';
+
+import { configureReanimatedLogger, ReanimatedLogLevel } from 'react-native-reanimated';
+
+// This is the default configuration
+configureReanimatedLogger({
+    level: ReanimatedLogLevel.warn,
+    strict: false, // Reanimated runs in strict mode by default
+});
 
 // Configure deep linking
 export const scheme = 'snacki';
@@ -70,6 +79,10 @@ export default function RootLayout() {
             SplashScreen.hideAsync();
         }
     }, [loaded, error]);
+
+    useEffect(() => {
+        requestForegroundPermissionsAsync();
+    }, []);
 
     if (!loaded && !error) {
         return null;

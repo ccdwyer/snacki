@@ -5,12 +5,13 @@ import { useUserAtom } from '~/atoms/AuthentictionAtoms';
 import { useSelectedCompany } from '~/atoms/CompanyAtoms';
 import { ErrorBoundary } from '~/components/Screens/ErrorBoundary';
 import { Text } from '~/components/nativewindui/Text';
-import { useGetUserCompanies } from '~/queries/CompanyQueries';
+import { useGetUserCompanies, useGetCompanyEventsForToday } from '~/queries/CompanyQueries';
 import { useGetTrucksForCurrentCompany } from '~/queries/UsersTruckQueries';
 import { DrawerToggleButton } from '@react-navigation/drawer';
 import { useTheme } from '@react-navigation/native';
 import { Button } from '~/components/Button';
 import { Icon } from '@roninoss/icons';
+import { EventListItem } from '~/components/Entities/EventListItem';
 
 const EmptyState = () => {
     const router = useRouter();
@@ -37,14 +38,17 @@ const TruckCard = ({ truck }: { truck: any }) => {
     const router = useRouter();
     const [selectedCompany] = useSelectedCompany();
     return (
-        <Pressable onPress={() => router.push(`/owner/companies/${selectedCompany?.id}/trucks/${truck.id}`)}>
+        <Pressable
+            onPress={() =>
+                router.push(`/owner/companies/${selectedCompany?.id}/trucks/${truck.id}`)
+            }>
             <View className="overflow-hidden rounded-xl bg-card">
                 <View className="p-4">
                     <Text variant="heading" className="mb-2">
                         {truck.name}
                     </Text>
                     {truck.description && (
-                        <Text variant="body" className="text-foreground/80 mb-2">
+                        <Text variant="body" className="mb-2 text-foreground/80">
                             {truck.description}
                         </Text>
                     )}
@@ -63,10 +67,20 @@ const CompanyScreen = () => {
     const theme = useTheme();
     const router = useRouter();
     const [user] = useUserAtom();
-    const { data: companies, isLoading: loadingCompanies, error: companiesError, refetch } = useGetUserCompanies(user?.id ?? null);
+    const {
+        data: companies,
+        isLoading: loadingCompanies,
+        error: companiesError,
+        refetch,
+    } = useGetUserCompanies(user?.id ?? null);
     const [selectedCompany, setSelectedCompany] = useSelectedCompany();
-    const { data: trucks, isLoading: loadingTrucks, error: trucksError } = useGetTrucksForCurrentCompany();
+    const {
+        data: trucks,
+        isLoading: loadingTrucks,
+        error: trucksError,
+    } = useGetTrucksForCurrentCompany();
     const [showCompanySelector, setShowCompanySelector] = useState(false);
+    const { data: todayEvents } = useGetCompanyEventsForToday(selectedCompany?.id ?? '');
 
     const error = companiesError || trucksError;
     const loading = loadingCompanies || loadingTrucks;
@@ -84,9 +98,9 @@ const CompanyScreen = () => {
                 options={{
                     headerLeft: () => <DrawerToggleButton tintColor={theme.colors.primary} />,
                     headerTitle: () => (
-                        <Pressable 
+                        <Pressable
                             onPress={() => setShowCompanySelector(true)}
-                            className="flex-row items-center justify-center ios:mt-2 android:mt-2">
+                            className="ios:mt-2 android:mt-2 flex-row items-center justify-center">
                             <Text variant="heading" className="mr-1">
                                 {selectedCompany?.name || 'Select Company'}
                             </Text>
@@ -101,8 +115,8 @@ const CompanyScreen = () => {
                 transparent
                 animationType="fade"
                 onRequestClose={() => setShowCompanySelector(false)}>
-                <Pressable 
-                    className="flex-1 bg-black/50 items-center justify-center"
+                <Pressable
+                    className="flex-1 items-center justify-center bg-black/50"
                     onPress={() => setShowCompanySelector(false)}>
                     <View className="mx-4 w-full max-w-sm overflow-hidden rounded-xl bg-card">
                         <View className="p-4">
@@ -146,17 +160,58 @@ const CompanyScreen = () => {
                                 <Button
                                     variant="secondary"
                                     className="flex-1"
-                                    onPress={() => router.push(`/owner/companies/${selectedCompany.id}/employees`)}>
-                                    <Icon name="account-multiple" size={20} color={theme.colors.primary} />
+                                    onPress={() =>
+                                        router.push(
+                                            `/owner/companies/${selectedCompany.id}/employees`
+                                        )
+                                    }>
+                                    <Icon
+                                        name="account-multiple"
+                                        size={20}
+                                        color={theme.colors.primary}
+                                    />
                                     <Text className="ml-2">Employees</Text>
                                 </Button>
                                 <Button
                                     variant="primary"
                                     className="flex-1"
-                                    onPress={() => router.push(`/owner/companies/${selectedCompany.id}/trucks/create`)}>
+                                    onPress={() =>
+                                        router.push(
+                                            `/owner/companies/${selectedCompany.id}/trucks/create`
+                                        )
+                                    }>
                                     <Icon name="plus" size={20} color="black" />
                                     <Text className="ml-2 text-black">Add Truck</Text>
                                 </Button>
+                                <Button
+                                    variant="primary"
+                                    className="flex-1"
+                                    onPress={() =>
+                                        router.push(
+                                            `/owner/companies/${selectedCompany.id}/events/create`
+                                        )
+                                    }>
+                                    <Icon name="plus" size={20} color="black" />
+                                    <Text className="ml-2 text-black">Create Event</Text>
+                                </Button>
+                            </View>
+
+                            {/* Today's Events */}
+                            <View>
+                                <Text variant="title2" className="mb-4">
+                                    Today's Events
+                                </Text>
+                                <View className="gap-4">
+                                    {!todayEvents || todayEvents.length === 0 ? (
+                                        <Text className="text-center text-foreground/60">
+                                            No events scheduled for today
+                                        </Text>
+                                    ) : (
+                                        todayEvents.map((event) => (
+                                            <EventListItem key={event.id} event={event} />
+                                        ))
+                                    )}
+                                </View>
                             </View>
 
                             {/* Trucks List */}

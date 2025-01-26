@@ -1,29 +1,35 @@
-import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { supabaseClient } from "~/clients/supabase";
-import { useUserAtom } from "~/atoms/AuthentictionAtoms";
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { supabaseClient } from '~/clients/supabase';
+import { useUserAtom } from '~/atoms/AuthentictionAtoms';
+import { useSelectedCompany } from '~/atoms/CompanyAtoms';
+import { Database } from '~/types/supabaseTypes';
 
 const getUserCompanies = async (userId: string) => {
     // Get companies where user is owner or employee using raw query
     const { data, error } = await supabaseClient
         .from('companies')
-        .select(`
+        .select(
+            `
             *,
             company_employees (
                 is_manager,
                 user_id
             )
-        `)
+        `
+        )
         .eq('owner_id', userId);
 
     const { data: employeeCompanies, error: employeeError } = await supabaseClient
         .from('companies')
-        .select(`
+        .select(
+            `
             *,
             company_employees (
                 is_manager,
                 user_id
             )
-        `)
+        `
+        )
         .eq('company_employees.user_id', userId);
 
     if (error || employeeError) {
@@ -33,9 +39,11 @@ const getUserCompanies = async (userId: string) => {
 
     // Combine and deduplicate results
     const allCompanies = [...(data || []), ...(employeeCompanies || [])];
-    const uniqueCompanies = Array.from(new Map(allCompanies.map(item => [item.id, item])).values());
+    const uniqueCompanies = Array.from(
+        new Map(allCompanies.map((item) => [item.id, item])).values()
+    );
     return uniqueCompanies;
-}
+};
 
 export const useGetUserCompanies = (userId: string | null) => {
     return useQuery({
@@ -48,7 +56,7 @@ export const useGetUserCompanies = (userId: string | null) => {
         },
         enabled: !!userId,
     });
-}
+};
 
 type CompanyEmployee = {
     id: string;
@@ -69,11 +77,10 @@ type CompanyEmployee = {
 };
 
 const getCompanyEmployees = async (companyId: string): Promise<CompanyEmployee[]> => {
-    const { data, error } = await supabaseClient
-        .rpc('get_company_employees', {
-            company_id_input: companyId
-        }) as { data: CompanyEmployee[] | null; error: any };
-        
+    const { data, error } = (await supabaseClient.rpc('get_company_employees', {
+        company_id_input: companyId,
+    })) as { data: CompanyEmployee[] | null; error: any };
+
     if (error) {
         console.error('Error fetching company employees', error);
         throw error;
@@ -100,16 +107,15 @@ interface AddEmployeeParams {
 export const useAddCompanyEmployee = () => {
     const queryClient = useQueryClient();
     const [user] = useUserAtom();
-    
+
     return useMutation({
         mutationFn: async ({ companyId, email, name, isManager = false }: AddEmployeeParams) => {
-            const { data, error } = await supabaseClient
-                .rpc('add_company_employee', {
-                    _company_id: companyId,
-                    _email: email,
-                    _is_manager: isManager,
-                    _employee_name: name,
-                });
+            const { data, error } = await supabaseClient.rpc('add_company_employee', {
+                _company_id: companyId,
+                _email: email,
+                _is_manager: isManager,
+                _employee_name: name,
+            });
 
             if (error) throw error;
             return data;
@@ -123,17 +129,23 @@ export const useAddCompanyEmployee = () => {
     });
 };
 
-const getCompanyEventsForDateRange = async (companyId: string, startDate: string, endDate: string) => {
+const getCompanyEventsForDateRange = async (
+    companyId: string,
+    startDate: string,
+    endDate: string
+) => {
     const { data, error } = await supabaseClient
         .from('events')
-        .select(`
+        .select(
+            `
             *,
             event_food_trucks!inner(
                 food_trucks!inner(
                     company_id
                 )
             )
-        `)
+        `
+        )
         .eq('event_food_trucks.food_trucks.company_id', companyId)
         .gte('start_time', startDate)
         .lte('end_time', endDate)
@@ -141,18 +153,104 @@ const getCompanyEventsForDateRange = async (companyId: string, startDate: string
 
     if (error) throw error;
     return data;
-}
+};
 
-export const useGetCompanyEventsForDateRange = (companyId: string, startDate: string, endDate: string) => {
-    return useQuery({ 
-        queryKey: ['company-events', companyId, startDate, endDate], 
+export const useGetCompanyEventsForDateRange = (
+    companyId: string,
+    startDate: string,
+    endDate: string
+) => {
+    return useQuery({
+        queryKey: ['company-events', companyId, startDate, endDate],
         queryFn: () => getCompanyEventsForDateRange(companyId, startDate, endDate),
-        enabled: !!companyId && !!startDate && !!endDate
+        enabled: !!companyId && !!startDate && !!endDate,
     });
-}
+};
 
 export const useGetCompanyEventsForToday = (companyId: string) => {
     const startOfToday = new Date(new Date().setHours(0, 0, 0, 0)).toISOString();
     const endOfToday = new Date(new Date().setHours(23, 59, 59, 999)).toISOString();
     return useGetCompanyEventsForDateRange(companyId, startOfToday, endOfToday);
-}
+};
+
+const getCurrentCompanyFoodTrucks = async (companyId: string) => {
+    const { data, error } = await supabaseClient
+        .from('food_trucks')
+        .select('*')
+        .eq('company_id', companyId);
+
+    if (error) throw error;
+    return data;
+};
+
+export const useGetSelectedCompanyFoodTrucks = () => {
+    const [selectedCompany] = useSelectedCompany();
+    return useQuery({
+        queryKey: ['current-company-food-trucks', selectedCompany?.id],
+        queryFn: () => {
+            if (!selectedCompany?.id) throw new Error('Company ID is required');
+            return getCurrentCompanyFoodTrucks(selectedCompany.id);
+        },
+        enabled: !!selectedCompany?.id,
+    });
+};
+
+const upsertEventWithCompanyTrucks = async (
+    event: Database['public']['Tables']['events']['Insert'],
+    foodTrucks: Database['public']['Tables']['food_trucks']['Row'][]
+) => {
+    // Start a Supabase transaction
+    const { data: eventData, error: eventError } = await supabaseClient
+        .from('events')
+        .upsert(event)
+        .select()
+        .single();
+
+    if (eventError) throw eventError;
+    if (!eventData) throw new Error('Failed to upsert event');
+
+    // Delete existing food truck associations
+    const { error: deleteError } = await supabaseClient
+        .from('event_food_trucks')
+        .delete()
+        .eq('event_id', eventData.id);
+
+    if (deleteError) throw deleteError;
+
+    // Create new food truck associations
+    if (foodTrucks.length > 0) {
+        const { error: insertError } = await supabaseClient.from('event_food_trucks').insert(
+            foodTrucks.map((truck) => ({
+                event_id: eventData.id,
+                food_truck_id: truck.id,
+            }))
+        );
+
+        if (insertError) throw insertError;
+    }
+
+    return eventData;
+};
+
+export const useUpsertEventWithCompanyTrucks = () => {
+    const [selectedCompany] = useSelectedCompany();
+    const queryClient = useQueryClient();
+
+    return useMutation({
+        mutationFn: async ({
+            event,
+            foodTrucks,
+        }: {
+            event: Database['public']['Tables']['events']['Insert'];
+            foodTrucks: Database['public']['Tables']['food_trucks']['Row'][];
+        }) => {
+            return upsertEventWithCompanyTrucks(event, foodTrucks);
+        },
+        onSuccess: () => {
+            // Invalidate relevant queries
+            if (selectedCompany?.id) {
+                queryClient.invalidateQueries({ queryKey: ['company-events', selectedCompany.id] });
+            }
+        },
+    });
+};

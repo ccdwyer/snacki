@@ -14,7 +14,7 @@ export const InviteEmployeeScreen = () => {
     const router = useRouter();
     const { companyId } = useLocalSearchParams();
     const addEmployee = useAddCompanyEmployee();
-    
+
     const [email, setEmail] = useState('');
     const [name, setName] = useState('');
     const [isManager, setIsManager] = useState(false);
@@ -36,7 +36,7 @@ export const InviteEmployeeScreen = () => {
 
     const handleSubmit = async () => {
         if (!email) return;
-        
+
         setLoading(true);
         try {
             await addEmployee.mutateAsync({
@@ -45,7 +45,7 @@ export const InviteEmployeeScreen = () => {
                 name: '',
                 isManager,
             });
-            
+
             showMessage('Success', 'Employee invited successfully');
             router.back();
         } catch (error: any) {
@@ -59,58 +59,62 @@ export const InviteEmployeeScreen = () => {
 
     return (
         <>
-            <Stack.Screen options={{ 
-                headerTitle: 'Invite Employee',
-                headerBackTitle: 'Employees',
-                headerTintColor: '#10b981'
-            }} />
+            <Stack.Screen
+                options={{
+                    headerTitle: 'Invite Employee',
+                    headerBackTitle: 'Employees',
+                    headerTintColor: '#10b981',
+                }}
+            />
             <ErrorBoundary>
                 <SafeAreaView className="flex-1 bg-background">
-                <ScrollView 
-                    className="flex-1 bg-background" 
-                    contentContainerClassName="p-4 space-y-6">
-                    <TextInput
-                        label="Email Address"
-                        value={email}
-                        onChangeText={setEmail}
-                        placeholder="Enter employee email"
-                        keyboardType="email-address"
-                        autoCapitalize="none"
-                        autoComplete="email"
-                        returnKeyType="next"
-                        onSubmitEditing={() => nameRef.current?.focus()}
-                    />
+                    <ScrollView
+                        className="flex-1 bg-background"
+                        contentContainerClassName="p-4 space-y-6 gap-4">
+                        <TextInput
+                            label="Email Address"
+                            value={email}
+                            onChangeText={setEmail}
+                            placeholder="Enter employee email"
+                            keyboardType="email-address"
+                            autoCapitalize="none"
+                            autoComplete="email"
+                            returnKeyType="next"
+                            onSubmitEditing={() => nameRef.current?.focus()}
+                        />
 
-                    <TextInput
-                        ref={nameRef}
-                        label="Employee Name"
-                        value={name}
-                        onChangeText={setName}
-                        placeholder="Enter employee name"
-                        autoCapitalize="words"
-                        returnKeyType="done"
-                        onSubmitEditing={handleSubmit}
-                    />
+                        <TextInput
+                            ref={nameRef}
+                            label="Employee Name"
+                            value={name}
+                            onChangeText={setName}
+                            placeholder="Enter employee name"
+                            autoCapitalize="words"
+                            returnKeyType="done"
+                            onSubmitEditing={handleSubmit}
+                        />
 
-                    <View className="bg-card p-4 rounded-lg">
-                        <View className="flex-row items-center justify-between">
-                            <View className="flex-1 mr-4">
-                                <Text className="text-base">Manager Access</Text>
-                                <Text className="text-sm text-muted-foreground">Can manage company settings and other employees</Text>
+                        <View className="rounded-lg bg-card p-4">
+                            <View className="flex-row items-center justify-between">
+                                <View className="mr-4 flex-1">
+                                    <Text className="text-base">Manager Access</Text>
+                                    <Text className="text-sm text-muted-foreground">
+                                        Can manage company settings and other employees
+                                    </Text>
+                                </View>
+                                <Switch value={isManager} onValueChange={setIsManager} />
                             </View>
-                            <Switch value={isManager} onValueChange={setIsManager} />
                         </View>
-                    </View>
 
-                    <Button
-                        variant="primary"
-                        onPress={handleSubmit}
-                        loading={loading}
-                        disabled={!email || loading}
-                        className="rounded-2xl">
-                        {loading ? 'Inviting...' : 'Invite Employee'}
-                    </Button>
-                </ScrollView>
+                        <Button
+                            variant="primary"
+                            onPress={handleSubmit}
+                            loading={loading}
+                            disabled={!email || loading}
+                            className="rounded-2xl">
+                            {loading ? 'Inviting...' : 'Invite Employee'}
+                        </Button>
+                    </ScrollView>
                 </SafeAreaView>
             </ErrorBoundary>
 
@@ -122,8 +126,8 @@ export const InviteEmployeeScreen = () => {
                     {
                         text: 'OK',
                         style: alertConfig.isError ? 'destructive' : 'default',
-                        onPress: () => setShowAlert(false)
-                    }
+                        onPress: () => setShowAlert(false),
+                    },
                 ]}
                 onDismiss={() => setShowAlert(false)}
             />

@@ -173,18 +173,24 @@ export type Database = {
             };
             event_food_trucks: {
                 Row: {
+                    cancelled_dt: string | null;
+                    checked_in_dt: string | null;
                     created_at: string;
                     event_id: string;
                     food_truck_id: string;
                     id: string;
                 };
                 Insert: {
+                    cancelled_dt?: string | null;
+                    checked_in_dt?: string | null;
                     created_at?: string;
                     event_id: string;
                     food_truck_id: string;
                     id?: string;
                 };
                 Update: {
+                    cancelled_dt?: string | null;
+                    checked_in_dt?: string | null;
                     created_at?: string;
                     event_id?: string;
                     food_truck_id?: string;
