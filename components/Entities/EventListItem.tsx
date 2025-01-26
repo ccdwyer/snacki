@@ -1,6 +1,7 @@
 import { FontAwesome } from '@expo/vector-icons';
 import React from 'react';
 import { View, Pressable } from 'react-native';
+import { useTheme } from '@react-navigation/native';
 
 import { Text } from '~/components/nativewindui/Text';
 import { Database } from '~/types/supabaseTypes';
@@ -13,24 +14,28 @@ interface EventListItemProps {
 }
 
 export const EventListItem = ({ event, onPress }: EventListItemProps) => {
+    const theme = useTheme();
+
     return (
         <Pressable
             onPress={onPress}
-            className="mb-4 rounded-lg border border-gray-200 bg-white p-4 active:bg-gray-50">
-            <Text className="text-lg font-semibold text-gray-900">{event.title}</Text>
-            <Text className="mb-2 text-gray-600">
+            className="mb-4 rounded-lg border border-border bg-card p-4 active:bg-muted">
+            <Text variant="heading" className="text-foreground">
+                {event.title}
+            </Text>
+            <Text className="mb-2 text-foreground/60">
                 {event.description || 'No description available'}
             </Text>
             <View className="flex-row items-center">
-                <FontAwesome name="calendar" size={16} color="#0d9488" />
-                <Text className="ml-2 text-teal-600">
+                <FontAwesome name="calendar" size={16} color={theme.colors.primary} />
+                <Text className="ml-2 text-primary">
                     {new Date(event.start_time || '').toLocaleDateString()}
                 </Text>
             </View>
             {event.location_desc && (
                 <View className="mt-1 flex-row items-center">
-                    <FontAwesome name="map-marker" size={16} color="#0d9488" />
-                    <Text className="ml-2 text-teal-600">{event.location_desc}</Text>
+                    <FontAwesome name="map-marker" size={16} color={theme.colors.primary} />
+                    <Text className="ml-2 text-primary">{event.location_desc}</Text>
                 </View>
             )}
         </Pressable>

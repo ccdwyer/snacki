@@ -173,6 +173,13 @@ export const useGetCompanyEventsForToday = (companyId: string) => {
     return useGetCompanyEventsForDateRange(companyId, startOfToday, endOfToday);
 };
 
+export const useGetCompanyEventsForTomorrow = (companyId: string) => {
+    const tomorrow = new Date(new Date().setDate(new Date().getDate() + 1));
+    const startOfTomorrow = new Date(tomorrow.setHours(0, 0, 0, 0)).toISOString();
+    const endOfTomorrow = new Date(tomorrow.setHours(23, 59, 59, 999)).toISOString();
+    return useGetCompanyEventsForDateRange(companyId, startOfTomorrow, endOfTomorrow);
+};
+
 const getCurrentCompanyFoodTrucks = async (companyId: string) => {
     const { data, error } = await supabaseClient
         .from('food_trucks')

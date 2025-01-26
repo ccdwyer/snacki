@@ -5,7 +5,11 @@ import { useUserAtom } from '~/atoms/AuthentictionAtoms';
 import { useSelectedCompany } from '~/atoms/CompanyAtoms';
 import { ErrorBoundary } from '~/components/Screens/ErrorBoundary';
 import { Text } from '~/components/nativewindui/Text';
-import { useGetUserCompanies, useGetCompanyEventsForToday } from '~/queries/CompanyQueries';
+import {
+    useGetUserCompanies,
+    useGetCompanyEventsForToday,
+    useGetCompanyEventsForTomorrow,
+} from '~/queries/CompanyQueries';
 import { useGetTrucksForCurrentCompany } from '~/queries/UsersTruckQueries';
 import { DrawerToggleButton } from '@react-navigation/drawer';
 import { useTheme } from '@react-navigation/native';
@@ -81,6 +85,7 @@ const CompanyScreen = () => {
     } = useGetTrucksForCurrentCompany();
     const [showCompanySelector, setShowCompanySelector] = useState(false);
     const { data: todayEvents } = useGetCompanyEventsForToday(selectedCompany?.id ?? '');
+    const { data: tomorrowEvents } = useGetCompanyEventsForTomorrow(selectedCompany?.id ?? '');
 
     const error = companiesError || trucksError;
     const loading = loadingCompanies || loadingTrucks;
@@ -156,7 +161,7 @@ const CompanyScreen = () => {
                     ) : (
                         <View className="gap-6">
                             {/* Company Actions */}
-                            <View className="flex-row gap-4">
+                            <View className="ios:flex-col android:flex-col gap-4 web:flex-row">
                                 <Button
                                     variant="secondary"
                                     className="flex-1"
@@ -208,6 +213,24 @@ const CompanyScreen = () => {
                                         </Text>
                                     ) : (
                                         todayEvents.map((event) => (
+                                            <EventListItem key={event.id} event={event} />
+                                        ))
+                                    )}
+                                </View>
+                            </View>
+
+                            {/* Tomorrow's Events */}
+                            <View>
+                                <Text variant="title2" className="mb-4">
+                                    Tomorrow's Events
+                                </Text>
+                                <View className="gap-4">
+                                    {!tomorrowEvents || tomorrowEvents.length === 0 ? (
+                                        <Text className="text-center text-foreground/60">
+                                            No events scheduled for tomorrow
+                                        </Text>
+                                    ) : (
+                                        tomorrowEvents.map((event) => (
                                             <EventListItem key={event.id} event={event} />
                                         ))
                                     )}

@@ -136,9 +136,7 @@ export const EventFormScreen = ({ onSuccess }: EventFormScreenProps) => {
             description: description.trim(),
             location_desc: locationDesc.trim(),
             address: address.trim(),
-            location: gpsCoordinates
-                ? { type: 'Point', coordinates: [gpsCoordinates.lng, gpsCoordinates.lat] }
-                : null,
+            location: gpsCoordinates ? `POINT(${gpsCoordinates.lng} ${gpsCoordinates.lat})` : null,
             start_time: startTime.toISOString(),
             end_time: endTime.toISOString(),
             user_id: user.id,
