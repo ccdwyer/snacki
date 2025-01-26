@@ -7,7 +7,7 @@ import { Text } from '~/components/nativewindui/Text';
 
 export default function TruckDetails() {
     const router = useRouter();
-    const { id } = useLocalSearchParams();
+    const { truckId, companyId } = useLocalSearchParams();
     return (
         <>
             <Stack.Screen
@@ -17,7 +17,7 @@ export default function TruckDetails() {
                         <Button
                             variant="ghost"
                             onPress={() => {
-                                router.push(`/owner/trucks/${id}/edit`);
+                                router.push(`/owner/companies/${companyId}/trucks/${truckId}/edit`);
                             }}>
                             <Text className="text-primary">Update</Text>
                         </Button>

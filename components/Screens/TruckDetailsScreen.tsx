@@ -2,8 +2,7 @@ import { FontAwesome } from '@expo/vector-icons';
 import { Icon } from '@roninoss/icons';
 import { Link, useLocalSearchParams, useRouter } from 'expo-router';
 import React, { useState } from 'react';
-import { View, Alert, ScrollView, TouchableHighlight, Linking, Pressable } from 'react-native';
-import Swipeable from 'react-native-gesture-handler/ReanimatedSwipeable';
+import { View, Alert, ScrollView, TouchableHighlight, Linking, Pressable, Modal, Platform } from 'react-native';
 
 import { ErrorBoundary } from './ErrorBoundary';
 
@@ -23,70 +22,132 @@ type Menu = Database['public']['Tables']['menus']['Row'];
 interface MenuListItemProps {
     menu: Menu;
     isOwner: boolean;
-    truckId: string;
+    truck: Database['public']['Tables']['food_trucks']['Row'];
 }
 
-const MenuListItem = ({ menu, isOwner, truckId }: MenuListItemProps) => {
+const MenuListItem = ({ menu, isOwner, truck }: MenuListItemProps) => {
     const { colors } = useColorScheme();
     const deleteMenu = useDeleteMenuForCurrentUser();
+    const router = useRouter();
+    const [showActions, setShowActions] = useState(false);
 
     const handleDelete = () => {
-        Alert.alert(
-            'Delete Menu',
-            'Are you sure you want to delete this menu? This action cannot be undone.',
-            [
+        setShowActions(false);
+        console.log('Deleting menu:', menu.id, 'from truck:', truck.id);
+        
+        const confirmDelete = () => {
+            console.log('Delete confirmed, calling mutation...');
+            deleteMenu.mutate(
+                { menuId: menu.id, truckId: truck.id },
                 {
-                    text: 'Cancel',
-                    style: 'cancel',
-                },
-                {
-                    text: 'Delete',
-                    style: 'destructive',
-                    onPress: () => {
-                        deleteMenu.mutate(
-                            { menuId: menu.id, truckId },
-                            {
-                                onError: (error: Error) => {
-                                    Alert.alert('Error', error.message);
-                                },
-                            }
-                        );
+                    onSuccess: () => {
+                        console.log('Delete successful');
+                        if (Platform.OS === 'web') {
+                            alert('Menu deleted successfully');
+                        } else {
+                            Alert.alert('Success', 'Menu deleted successfully');
+                        }
                     },
-                },
-            ]
-        );
-    };
+                    onError: (error: Error) => {
+                        console.error('Delete failed:', error);
+                        if (Platform.OS === 'web') {
+                            alert(error.message);
+                        } else {
+                            Alert.alert('Error', error.message);
+                        }
+                    },
+                }
+            );
+        };
 
-    const renderRightActions = () => {
-        if (!isOwner) return null;
-
-        return (
-            <View className="ml-[-8] flex-row pb-4">
-                <Button
-                    variant="ghost"
-                    className="w-32 justify-center bg-red-500 px-4"
-                    onPress={handleDelete}>
-                    <Text className="text-white">Delete</Text>
-                </Button>
-            </View>
-        );
+        if (Platform.OS === 'web') {
+            if (window.confirm('Are you sure you want to delete this menu? This action cannot be undone.')) {
+                confirmDelete();
+            }
+        } else {
+            Alert.alert(
+                'Delete Menu',
+                'Are you sure you want to delete this menu? This action cannot be undone.',
+                [
+                    {
+                        text: 'Cancel',
+                        style: 'cancel',
+                    },
+                    {
+                        text: 'Delete',
+                        style: 'destructive',
+                        onPress: confirmDelete,
+                    },
+                ]
+            );
+        }
     };
 
     return (
-        <Swipeable renderRightActions={renderRightActions} enabled={isOwner}>
-            <Link href={`/owner/trucks/${truckId}/menu/${menu.id}`} asChild>
-                <TouchableHighlight
-                    className="mb-4 w-full rounded-lg border border-gray-200 bg-card p-4"
-                    underlayColor={colors.background}>
-                    <>
-                        <Text className="text-lg font-semibold text-foreground">{menu.name}</Text>
-                        <Text className="text-foreground/80">
-                            {menu.description || 'No description available'}
-                        </Text>
-                    </>
-                </TouchableHighlight>
-            </Link>
-        </Swipeable>
+        <>
+            <View className="mb-4 w-full flex-row items-center rounded-lg border border-gray-200 bg-card">
+                <Link
+                    href={`/owner/companies/${truck.company_id}/trucks/${truck.id}/menu/${menu.id}`}
+                    asChild>
+                    <TouchableHighlight
+                        className="flex-1 p-4"
+                        underlayColor={colors.background}>
+                        <>
+                            <Text className="text-lg font-semibold text-foreground">{menu.name}</Text>
+                            <Text className="text-foreground/80">
+                                {menu.description || 'No description available'}
+                            </Text>
+                        </>
+                    </TouchableHighlight>
+                </Link>
+                {isOwner && (
+                    <Pressable 
+                        onPress={() => setShowActions(true)}
+                        className="px-4">
+                        <Text className="text-2xl text-foreground/60">⋮</Text>
+                    </Pressable>
+                )}
+            </View>
+
+            <Modal
+                visible={showActions}
+                transparent
+                animationType="fade"
+                onRequestClose={() => setShowActions(false)}>
+                <Pressable 
+                    className="flex-1 bg-black/50 items-center justify-center"
+                    onPress={() => setShowActions(false)}>
+                    <View className="mx-4 w-full max-w-sm overflow-hidden rounded-xl bg-card">
+                        <View className="p-4">
+                            <Text variant="title3" className="mb-4">
+                                Menu Actions
+                            </Text>
+                            <View className="gap-2">
+                                <Pressable
+                                    className="rounded-lg p-3 active:bg-muted"
+                                    onPress={() => {
+                                        setShowActions(false);
+                                        router.push(`/owner/companies/${truck.company_id}/trucks/${truck.id}/menu/${menu.id}/edit`);
+                                    }}>
+                                    <View className="flex-row items-center">
+                                        <Icon name="pencil" size={20} color={colors.foreground} />
+                                        <Text className="ml-2">Edit Menu</Text>
+                                    </View>
+                                </Pressable>
+                                <Pressable
+                                    className="rounded-lg p-3 active:bg-muted"
+                                    onPress={handleDelete}>
+                                    <View className="flex-row items-center">
+                                        <Icon name="trash-can" size={20} color={colors.destructive} />
+                                        <Text className="ml-2 text-destructive">Delete Menu</Text>
+                                    </View>
+                                </Pressable>
+                            </View>
+                        </View>
+                    </View>
+                </Pressable>
+            </Modal>
+        </>
     );
 };
 
@@ -94,7 +155,7 @@ export const TruckDetailsScreen = () => {
     const router = useRouter();
     const { colors } = useColorScheme();
     const [user] = useUserAtom();
-    const { id } = useLocalSearchParams();
+    const { truckId: id } = useLocalSearchParams();
     const truckId = Array.isArray(id) ? id[0] : id;
     const [activeTab, setActiveTab] = useState<Tab>('details');
     const { data: truck, isLoading: loading, error, refetch } = useGetTruckById(truckId);
@@ -210,7 +271,9 @@ export const TruckDetailsScreen = () => {
                                         variant="primary"
                                         className="mb-4"
                                         onPress={() =>
-                                            router.push(`/owner/trucks/${truckId}/menu/create`)
+                                            router.push(
+                                                `/owner/companies/${truck.company_id}/trucks/${truck.id}/menu/create`
+                                            )
                                         }>
                                         <Icon name="plus" size={20} color={colors.foreground} />
                                         <Text className="ml-2">Create Menu</Text>
@@ -222,7 +285,7 @@ export const TruckDetailsScreen = () => {
                                             key={menu.id}
                                             menu={menu}
                                             isOwner={isOwner}
-                                            truckId={truckId}
+                                            truck={truck}
                                         />
                                     ))
                                 ) : (
@@ -235,6 +298,19 @@ export const TruckDetailsScreen = () => {
 
                         {activeTab === 'events' && (
                             <View className="p-4">
+                                {isOwner && (
+                                    <Button
+                                        variant="primary"
+                                        className="mb-4"
+                                        onPress={() =>
+                                            router.push(
+                                                `/owner/companies/${truck.company_id}/trucks/${truck.id}/events/create`
+                                            )
+                                        }>
+                                        <Icon name="plus" size={20} color={colors.foreground} />
+                                        <Text className="ml-2">Create Event</Text>
+                                    </Button>
+                                )}
                                 {truck.events?.length > 0 ? (
                                     truck.events.map((eventRelation) => (
                                         <EventListItem

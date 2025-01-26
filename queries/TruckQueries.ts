@@ -2,6 +2,7 @@ import { useQuery } from '@tanstack/react-query';
 
 import { supabaseClient } from '~/clients/supabase';
 const getTruckById = async (truckId: string) => {
+    console.log('Fetching truck:', truckId);
     const { data, error } = await supabaseClient
         .from('food_trucks')
         .select(
@@ -21,19 +22,32 @@ const getTruckById = async (truckId: string) => {
         .order('created_at', { referencedTable: 'menus.menu_sections' })
         .order('created_at', { referencedTable: 'menus.menu_sections.menu_items' })
         .single();
-    if (error) throw error;
+
+    console.log('Truck query result:', { data, error });
+
+    if (error) {
+        if (error.code === 'PGRST116') {
+            // No truck found
+            console.log('No truck found');
+            return null;
+        }
+        console.error('Error fetching truck:', error);
+        throw error;
+    }
     return data;
 };
 
-export const useGetTruckById = (truckId: string) => {
+export const useGetTruckById = (truckId: string, options?: { enabled?: boolean }) => {
     return useQuery({
         queryKey: ['truck', truckId],
         queryFn: async () => {
             const truck = await getTruckById(truckId);
-
+            if (!truck) {
+                throw new Error('Truck not found');
+            }
             return truck;
         },
-        enabled: !!truckId,
+        enabled: options?.enabled ?? !!truckId,
     });
 };
 

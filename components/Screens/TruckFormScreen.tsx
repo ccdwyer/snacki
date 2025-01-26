@@ -1,6 +1,6 @@
 import { useRouter } from 'expo-router';
 import React, { useEffect, useMemo, useState } from 'react';
-import { View, Alert, TextInput, ScrollView } from 'react-native';
+import { View, Alert, ScrollView } from 'react-native';
 
 import { Container } from '../Container';
 import { LocationPicker } from '../LocationPicker';
@@ -10,11 +10,11 @@ import { useUserAtom } from '~/atoms/AuthentictionAtoms';
 import { useCuisineTypes } from '~/atoms/GlobalDataAtoms';
 import { Button } from '~/components/Button';
 import { Text } from '~/components/nativewindui/Text';
-import {
-    useGetTrucksForCurrentUser,
-    useUpsertTruckForCurrentUser,
-} from '~/queries/UsersTruckQueries';
+import { TextInput } from '~/components/ui/TextInput';
+import { useUpsertTruckForCurrentCompany } from '~/queries/UsersTruckQueries';
+import { useGetTruckById } from '~/queries/TruckQueries';
 import { Database } from '~/types/supabaseTypes';
+import { useSelectedCompany } from '~/atoms/CompanyAtoms';
 
 type Truck = Database['public']['Tables']['food_trucks']['Row'] & {
     cuisine_types?: {
@@ -31,6 +31,8 @@ type TruckFormProps = {
 };
 
 export default function TruckFormScreen({ mode, truckId }: TruckFormProps) {
+    console.log('TruckFormScreen render:', { mode, truckId });
+    const [selectedCompany] = useSelectedCompany();
     const router = useRouter();
     const [user] = useUserAtom();
     const [name, setName] = useState('');
@@ -57,11 +59,21 @@ export default function TruckFormScreen({ mode, truckId }: TruckFormProps) {
         mutate: upsertTruck,
         isError,
         isPending,
-    } = useUpsertTruckForCurrentUser({
+    } = useUpsertTruckForCurrentCompany({
         onSuccess: () => {
             router.back();
         },
     });
+
+    const { data: truck, isLoading: loadingTruck } = useGetTruckById(truckId || '', {
+        enabled: mode === 'update' && !!truckId
+    });
+    const loading = isPending || (mode === 'update' && loadingTruck);
+    const formCompleted = name.trim().length > 0 && 
+        description.trim().length > 0 && 
+        address.trim().length > 0 && 
+        rangeOfService.trim().length > 0 && 
+        !!gpsCoordinates;
 
     useEffect(() => {
         if (isError) {
@@ -69,37 +81,27 @@ export default function TruckFormScreen({ mode, truckId }: TruckFormProps) {
         }
     }, [isError]);
 
-    const { data: trucks, isLoading: loadingTrucks } = useGetTrucksForCurrentUser();
-    const loading = isPending || (mode === 'update' && loadingTrucks);
-    const formCompleted =
-        name.trim().length > 0 &&
-        description.trim().length > 0 &&
-        address.trim().length > 0 &&
-        rangeOfService.trim().length > 0 &&
-        !!gpsCoordinates;
-
     useEffect(() => {
-        if (mode === 'update' && truckId && trucks) {
-            const truck = trucks.find((t) => t.id === truckId) as Truck;
-            if (truck) {
-                setName(truck.name);
-                setDescription(truck.description || '');
-                setAddress(truck.address || '');
-                setFacebookUrl(truck.facebook_url || '');
-                setInstagramUrl(truck.instagram_url || '');
-                setTiktokUrl(truck.tiktok_url || '');
-                setWebsiteUrl(truck.website_url || '');
-                setRangeOfService(truck.range_of_service?.toString() || '');
-                setGpsCoordinates({
-                    lat: truck.lat ?? 0,
-                    lng: truck.lng ?? 0,
-                });
-                setSelectedCuisineTypes(
-                    truck.cuisine_types?.map((ct) => ct.cuisine_types.id) ?? []
-                );
-            }
+        console.log('Truck data effect:', { mode, truck, truckId, loadingTruck });
+        if (mode === 'update' && truck && !loadingTruck) {
+            console.log('Setting form data from truck:', truck);
+            setName(truck.name);
+            setDescription(truck.description || '');
+            setAddress(truck.address || '');
+            setFacebookUrl(truck.facebook_url || '');
+            setInstagramUrl(truck.instagram_url || '');
+            setTiktokUrl(truck.tiktok_url || '');
+            setWebsiteUrl(truck.website_url || '');
+            setRangeOfService(truck.range_of_service?.toString() || '');
+            setGpsCoordinates({
+                lat: truck.lat ?? 0,
+                lng: truck.lng ?? 0,
+            });
+            setSelectedCuisineTypes(
+                truck.cuisine_types?.map((ct) => ct.cuisine_types.id) ?? []
+            );
         }
-    }, [mode, truckId, trucks]);
+    }, [mode, truck, truckId, loadingTruck]);
 
     const handleSubmit = async () => {
         if (!name.trim()) {
@@ -109,6 +111,11 @@ export default function TruckFormScreen({ mode, truckId }: TruckFormProps) {
 
         if (!user?.id) {
             Alert.alert('Error', 'You must be logged in');
+            return;
+        }
+
+        if (!selectedCompany?.id) {
+            Alert.alert('Error', 'You must be associated with a company');
             return;
         }
 
@@ -127,6 +134,7 @@ export default function TruckFormScreen({ mode, truckId }: TruckFormProps) {
             lat: gpsCoordinates?.lat,
             lng: gpsCoordinates?.lng,
             cuisineTypeIds: selectedCuisineTypes,
+            company_id: selectedCompany.id,
         };
 
         upsertTruck(truckData);
@@ -136,77 +144,41 @@ export default function TruckFormScreen({ mode, truckId }: TruckFormProps) {
         <Container>
             <ScrollView className="flex-1">
                 <View className="gap-4 space-y-4 p-4">
-                    <View>
-                        <Text variant="caption1" className="mb-1 font-medium">
-                            Truck Name *
-                        </Text>
-                        <TextInput
-                            className="w-full rounded-lg border border-gray-300 bg-gray-100 px-4 py-3"
-                            value={name}
-                            onChangeText={setName}
-                            editable={!loadingTrucks && !loading}
-                            placeholder="Enter truck name"
-                        />
-                    </View>
-
-                    <View>
-                        <Text variant="caption1" className="mb-1 font-medium">
-                            Description
-                        </Text>
-                        <TextInput
-                            className="w-full rounded-lg border border-gray-300 bg-gray-100 px-4 py-3"
-                            value={description}
-                            onChangeText={setDescription}
-                            multiline
-                            numberOfLines={3}
-                            editable={!loadingTrucks && !loading}
-                            placeholder="Enter description"
-                            textAlignVertical="top"
-                        />
-                    </View>
-
-                    {/* <View>
-                        <Text variant="caption1" className="mb-1 font-medium">
-                            Address
-                        </Text>
-                        <TextInput
-                            className="w-full rounded-lg border border-gray-300 bg-gray-100 px-4 py-3"
-                            value={address}
-                            onChangeText={setAddress}
-                            editable={!loadingTrucks && !loading}
-                            placeholder="Enter address"
-                        />
-                    </View> */}
-
-                    <LocationPicker
-                        onLocationSelected={(event) => {
-                            console.log('event', event);
-                            const newAddress = event.data.description ?? '';
-                            const newGpsCoordinates =
-                                event.geolocation.results[0].geometry.location ?? null;
-                            console.log({
-                                newAddress,
-                                newGpsCoordinates,
-                            });
-                            setAddress(newAddress);
-                            setGpsCoordinates(newGpsCoordinates);
-                        }}
-                        value={value}
+                    <TextInput
+                        label="Truck Name *"
+                        value={name}
+                        onChangeText={setName}
+                        editable={!loadingTruck && !loading}
+                        placeholder="Enter truck name"
                     />
 
-                    <View>
-                        <Text variant="caption1" className="mb-1 font-medium">
-                            Range of Service (miles)
-                        </Text>
-                        <TextInput
-                            className="w-full rounded-lg border border-gray-300 bg-gray-100 px-4 py-3"
-                            value={rangeOfService}
-                            onChangeText={setRangeOfService}
-                            keyboardType="numeric"
-                            editable={!loadingTrucks && !loading}
-                            placeholder="Enter range of service"
-                        />
-                    </View>
+                    <TextInput
+                        label="Description"
+                        value={description}
+                        onChangeText={setDescription}
+                        multiline
+                        numberOfLines={3}
+                        editable={!loadingTruck && !loading}
+                        placeholder="Enter description"
+                        textAlignVertical="top"
+                    />
+
+                    <LocationPicker
+                        value={value}
+                        onChange={(newValue) => {
+                            setAddress(newValue.address);
+                            setGpsCoordinates(newValue.gpsCoordinates);
+                        }}
+                    />
+
+                    <TextInput
+                        label="Range of Service (miles)"
+                        value={rangeOfService}
+                        onChangeText={setRangeOfService}
+                        keyboardType="numeric"
+                        editable={!loadingTruck && !loading}
+                        placeholder="Enter range of service"
+                    />
 
                     <MultiSelect
                         data={cuisineTypes}
@@ -225,65 +197,45 @@ export default function TruckFormScreen({ mode, truckId }: TruckFormProps) {
                         searchPlaceholder="Search cuisine type"
                     />
 
-                    <View>
-                        <Text variant="caption1" className="mb-1 font-medium">
-                            Website URL
-                        </Text>
-                        <TextInput
-                            className="w-full rounded-lg border border-gray-300 bg-gray-100 px-4 py-3"
-                            value={websiteUrl}
-                            onChangeText={setWebsiteUrl}
-                            editable={!loadingTrucks && !loading}
-                            placeholder="Enter website URL"
-                            keyboardType="url"
-                            autoCapitalize="none"
-                        />
-                    </View>
+                    <TextInput
+                        label="Website URL"
+                        value={websiteUrl}
+                        onChangeText={setWebsiteUrl}
+                        editable={!loadingTruck && !loading}
+                        placeholder="Enter website URL"
+                        keyboardType="url"
+                        autoCapitalize="none"
+                    />
 
-                    <View>
-                        <Text variant="caption1" className="mb-1 font-medium">
-                            Facebook URL
-                        </Text>
-                        <TextInput
-                            className="w-full rounded-lg border border-gray-300 bg-gray-100 px-4 py-3"
-                            value={facebookUrl}
-                            onChangeText={setFacebookUrl}
-                            editable={!loadingTrucks && !loading}
-                            placeholder="Enter Facebook URL"
-                            keyboardType="url"
-                            autoCapitalize="none"
-                        />
-                    </View>
+                    <TextInput
+                        label="Facebook URL"
+                        value={facebookUrl}
+                        onChangeText={setFacebookUrl}
+                        editable={!loadingTruck && !loading}
+                        placeholder="Enter Facebook URL"
+                        keyboardType="url"
+                        autoCapitalize="none"
+                    />
 
-                    <View>
-                        <Text variant="caption1" className="mb-1 font-medium">
-                            Instagram URL
-                        </Text>
-                        <TextInput
-                            className="w-full rounded-lg border border-gray-300 bg-gray-100 px-4 py-3"
-                            value={instagramUrl}
-                            onChangeText={setInstagramUrl}
-                            editable={!loadingTrucks && !loading}
-                            placeholder="Enter Instagram URL"
-                            keyboardType="url"
-                            autoCapitalize="none"
-                        />
-                    </View>
+                    <TextInput
+                        label="Instagram URL"
+                        value={instagramUrl}
+                        onChangeText={setInstagramUrl}
+                        editable={!loadingTruck && !loading}
+                        placeholder="Enter Instagram URL"
+                        keyboardType="url"
+                        autoCapitalize="none"
+                    />
 
-                    <View>
-                        <Text variant="caption1" className="mb-1 font-medium">
-                            TikTok URL
-                        </Text>
-                        <TextInput
-                            className="w-full rounded-lg border border-gray-300 bg-gray-100 px-4 py-3"
-                            value={tiktokUrl}
-                            onChangeText={setTiktokUrl}
-                            editable={!loadingTrucks && !loading}
-                            placeholder="Enter TikTok URL"
-                            keyboardType="url"
-                            autoCapitalize="none"
-                        />
-                    </View>
+                    <TextInput
+                        label="TikTok URL"
+                        value={tiktokUrl}
+                        onChangeText={setTiktokUrl}
+                        editable={!loadingTruck && !loading}
+                        placeholder="Enter TikTok URL"
+                        keyboardType="url"
+                        autoCapitalize="none"
+                    />
 
                     <Button
                         variant="primary"

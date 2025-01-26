@@ -2,13 +2,14 @@ import { useTheme } from '@react-navigation/native';
 import { Icon } from '@roninoss/icons';
 import { Stack, useRouter } from 'expo-router';
 import React, { useEffect, useState } from 'react';
-import { View, Alert, TextInput, ScrollView } from 'react-native';
+import { View, Alert, ScrollView } from 'react-native';
 
 import { Container } from '../Container';
 
 import { useUserAtom } from '~/atoms/AuthentictionAtoms';
 import { Button } from '~/components/Button';
 import { Text } from '~/components/nativewindui/Text';
+import { TextInput } from '~/components/ui/TextInput';
 import { useGetMenuById } from '~/queries/MenuQueries';
 import {
     useUpsertMenuForCurrentUser,
@@ -109,45 +110,29 @@ export default function MenuFormScreen({ mode, truckId, menuId }: MenuFormProps)
         setSections(newSections);
     };
 
-    const handleRemoveSection = (index: number) => {
+    const handleRemoveSection = async (index: number) => {
         const section = sections[index];
-        if (mode === 'update' && section.id) {
-            Alert.alert(
-                'Delete Section',
-                'Are you sure you want to delete this section? This will also delete all items in this section. This action cannot be undone.',
-                [
-                    {
-                        text: 'Cancel',
-                        style: 'cancel',
-                    },
-                    {
-                        text: 'Delete',
-                        style: 'destructive',
-                        onPress: () => {
-                            if (section.id && menuId) {
-                                deleteMenuSection.mutate(
-                                    {
-                                        menuSectionId: section.id,
-                                        menuId,
-                                        truckId,
-                                    },
-                                    {
-                                        onSuccess: () => {
-                                            setSections(sections.filter((_, i) => i !== index));
-                                        },
-                                        onError: (error) => {
-                                            Alert.alert('Error', error.message);
-                                        },
-                                    }
-                                );
-                            }
-                        },
-                    },
-                ]
-            );
-        } else {
-            setSections(sections.filter((_, i) => i !== index));
+        if (section.id) {
+            try {
+                // Delete all items first
+                await Promise.all(
+                    section.items.map(async (item) => {
+                        if (item.id) {
+                            await deleteMenuItem.mutateAsync(item.id);
+                        }
+                    })
+                );
+                // Then delete the section
+                await deleteMenuSection.mutateAsync(section.id);
+            } catch (error) {
+                console.error('Failed to delete section:', error);
+                Alert.alert('Error', 'Failed to delete section');
+                return;
+            }
         }
+        const newSections = [...sections];
+        newSections.splice(index, 1);
+        setSections(newSections);
     };
 
     const handleAddItem = (sectionIndex: number) => {
@@ -179,53 +164,20 @@ export default function MenuFormScreen({ mode, truckId, menuId }: MenuFormProps)
         setSections(newSections);
     };
 
-    const handleRemoveItem = (sectionIndex: number, itemIndex: number) => {
+    const handleRemoveItem = async (sectionIndex: number, itemIndex: number) => {
         const item = sections[sectionIndex].items[itemIndex];
-        if (mode === 'update' && item.id) {
-            Alert.alert(
-                'Delete Item',
-                'Are you sure you want to delete this item? This action cannot be undone.',
-                [
-                    {
-                        text: 'Cancel',
-                        style: 'cancel',
-                    },
-                    {
-                        text: 'Delete',
-                        style: 'destructive',
-                        onPress: () => {
-                            if (item.id && sections[sectionIndex].id) {
-                                deleteMenuItem.mutate(
-                                    {
-                                        menuItemId: item.id,
-                                        menuSectionId: sections[sectionIndex].id!,
-                                        truckId,
-                                    },
-                                    {
-                                        onSuccess: () => {
-                                            const newSections = [...sections];
-                                            newSections[sectionIndex].items = newSections[
-                                                sectionIndex
-                                            ].items.filter((_, i) => i !== itemIndex);
-                                            setSections(newSections);
-                                        },
-                                        onError: (error) => {
-                                            Alert.alert('Error', error.message);
-                                        },
-                                    }
-                                );
-                            }
-                        },
-                    },
-                ]
-            );
-        } else {
-            const newSections = [...sections];
-            newSections[sectionIndex].items = newSections[sectionIndex].items.filter(
-                (_, i) => i !== itemIndex
-            );
-            setSections(newSections);
+        if (item.id) {
+            try {
+                await deleteMenuItem.mutateAsync(item.id);
+            } catch (error) {
+                console.error('Failed to delete item:', error);
+                Alert.alert('Error', 'Failed to delete item');
+                return;
+            }
         }
+        const newSections = [...sections];
+        newSections[sectionIndex].items.splice(itemIndex, 1);
+        setSections(newSections);
     };
 
     const handleSubmit = () => {
@@ -296,28 +248,20 @@ export default function MenuFormScreen({ mode, truckId, menuId }: MenuFormProps)
                 <ScrollView className="flex-1">
                     <View className="gap-4 space-y-4 p-4">
                         <View className="p-4">
-                            <View className="mb-4">
-                                <Text variant="caption2" className="mb-1">
-                                    Menu Name *
-                                </Text>
-                                <TextInput
-                                    className="placeholder:text-foreground/50 w-full rounded-lg border border-gray-300 bg-gray-500/20 px-4 py-2 text-foreground focus:border-primary"
-                                    value={name}
-                                    onChangeText={setName}
-                                    placeholder="Enter menu name"
-                                />
-                            </View>
+                            <TextInput
+                                label="Menu Name *"
+                                value={name}
+                                onChangeText={setName}
+                                placeholder="Enter menu name"
+                            />
 
                             <View className="space-y-6">
                                 {sections.map((section, sectionIndex) => (
                                     <View key={sectionIndex} className="mb-6">
                                         <View className="mt-8 flex-row align-bottom">
                                             <View className="mr-2 flex-1">
-                                                <Text variant="caption2" className="mb-1">
-                                                    Section Name *
-                                                </Text>
                                                 <TextInput
-                                                    className="placeholder:text-foreground/50 w-full rounded-lg border-b border-gray-300 bg-gray-500/20 px-4 py-2 text-foreground focus:border-primary"
+                                                    label="Section Name *"
                                                     value={section.name}
                                                     onChangeText={(value) =>
                                                         handleUpdateSection(
@@ -344,13 +288,8 @@ export default function MenuFormScreen({ mode, truckId, menuId }: MenuFormProps)
                                                     className="mt-4 border-l-4 border-primary py-2 pl-4">
                                                     <View className="flex-row items-center justify-between">
                                                         <View className="mr-2 flex-1">
-                                                            <Text
-                                                                variant="caption2"
-                                                                className="mb-1">
-                                                                Item Name *
-                                                            </Text>
                                                             <TextInput
-                                                                className="placeholder:text-foreground/50 w-full rounded-lg border border-gray-300 bg-gray-500/20 px-4 py-2 text-foreground focus:border-primary"
+                                                                label="Item Name *"
                                                                 value={item.name}
                                                                 onChangeText={(value) =>
                                                                     handleUpdateItem(
@@ -381,11 +320,8 @@ export default function MenuFormScreen({ mode, truckId, menuId }: MenuFormProps)
                                                     </View>
 
                                                     <View className="mt-2">
-                                                        <Text variant="caption2" className="mb-1">
-                                                            Description
-                                                        </Text>
                                                         <TextInput
-                                                            className="placeholder:text-foreground/50 w-full rounded-lg border border-gray-300 bg-gray-500/20 px-4 py-2 text-foreground focus:border-primary"
+                                                            label="Description"
                                                             value={item.description}
                                                             onChangeText={(value) =>
                                                                 handleUpdateItem(
@@ -400,11 +336,8 @@ export default function MenuFormScreen({ mode, truckId, menuId }: MenuFormProps)
                                                     </View>
 
                                                     <View className="mt-2">
-                                                        <Text variant="caption2" className="mb-1">
-                                                            Price *
-                                                        </Text>
                                                         <TextInput
-                                                            className="placeholder:text-foreground/50 w-full rounded-lg border border-gray-300 bg-gray-500/20 px-4 py-2 text-foreground focus:border-primary"
+                                                            label="Price *"
                                                             value={item.price}
                                                             onChangeText={(value) =>
                                                                 handleUpdateItem(

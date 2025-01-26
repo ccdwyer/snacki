@@ -1,5 +1,5 @@
 import { Icon } from '@roninoss/icons';
-import { Link, Stack, useRouter } from 'expo-router';
+import { Link, Stack, useLocalSearchParams, useRouter } from 'expo-router';
 import { Pressable, View } from 'react-native';
 
 import { Container } from '~/components/Container';
@@ -8,7 +8,7 @@ import { ActivityIndicator } from '~/components/nativewindui/ActivityIndicator';
 import { Button } from '~/components/Button';
 import { Text } from '~/components/nativewindui/Text';
 import { useColorScheme } from '~/lib/useColorScheme';
-import { useGetTrucksForCurrentUser } from '~/queries/UsersTruckQueries';
+import { useGetTrucksForCurrentCompany } from '~/queries/UsersTruckQueries';
 
 type FoodTruck = {
     id: string;
@@ -22,8 +22,9 @@ type FoodTruck = {
 export default function TruckList() {
     const router = useRouter();
     const { colors } = useColorScheme();
+    const { companyId } = useLocalSearchParams();
 
-    const { data: trucks, isLoading: loading, error, refetch } = useGetTrucksForCurrentUser();
+    const { data: trucks, isLoading: loading, error, refetch } = useGetTrucksForCurrentCompany();
 
     return (
         <ErrorBoundary error={error} dismiss={refetch}>
@@ -35,7 +36,7 @@ export default function TruckList() {
                             <Button
                                 variant="ghost"
                                 className="mr-2"
-                                onPress={() => router.push('/owner/trucks/create')}>
+                                onPress={() => router.push(`/owner/companies/${companyId}/trucks/create`)}>
                                 <Icon name="plus" size={24} color={colors.primary} />
                             </Button>
                         ),
@@ -59,14 +60,14 @@ export default function TruckList() {
                             <Button
                                 variant="primary"
                                 className="mt-4"
-                                onPress={() => router.push('/owner/trucks/create')}>
+                                onPress={() => router.push(`/owner/companies/${companyId}/trucks/create`)}>
                                 <Text>Create Food Truck</Text>
                             </Button>
                         </View>
                     ) : (
                         <View className="flex-1 gap-4 p-4">
                             {trucks.map((truck) => (
-                                <Link key={truck.id} href={`/owner/trucks/${truck.id}`} asChild>
+                                <Link key={truck.id} href={`/owner/companies/${companyId}/trucks/${truck.id}`} asChild>
                                     <Pressable>
                                         <View className="rounded-lg border border-border bg-card p-4">
                                             <Text variant="heading" className="mb-1">

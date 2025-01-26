@@ -3,12 +3,12 @@ import { Stack, useLocalSearchParams } from 'expo-router';
 import MenuFormScreen from '~/components/Screens/MenuFormScreen';
 
 export default function CreateMenu() {
-    const { id } = useLocalSearchParams();
+    const { truckId } = useLocalSearchParams();
 
     return (
         <>
             <Stack.Screen options={{ title: 'Update Food Truck' }} />
-            <MenuFormScreen mode="create" truckId={id as string} />
+            <MenuFormScreen mode="create" truckId={truckId as string} />
         </>
     );
 }

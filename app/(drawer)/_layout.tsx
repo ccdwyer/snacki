@@ -31,16 +31,11 @@ const DrawerLayout = () => {
                 name="owner"
                 options={{
                     headerShown: false,
-                    headerTitle: 'Truck Management',
-                    drawerLabel: 'Truck Management',
+                    headerTitle: 'Company Management',
+                    drawerLabel: 'Company Management',
                     drawerItemStyle: user ? {} : { display: 'none' },
                     drawerIcon: ({ size, color }) => (
                         <MaterialIcons name="drive-eta" size={size} color={color} />
-                    ),
-                    headerRight: () => (
-                        <Link href="/modal" asChild>
-                            <HeaderButton />
-                        </Link>
                     ),
                 }}
             />

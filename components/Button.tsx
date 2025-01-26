@@ -13,20 +13,20 @@ import { Text } from './nativewindui/Text';
 import { cn } from '~/lib/cn';
 
 const buttonVariants = cva(
-    'flex-row items-center justify-center active:opacity-90 disabled:opacity-50',
+    'flex flex-row items-center justify-center rounded-lg px-4 py-3 transition-all duration-200 ease-in-out active:opacity-90 disabled:opacity-50 border border-transparent',
     {
         variants: {
             variant: {
-                primary: 'bg-primary',
-                secondary: 'bg-transparent border border-border',
-                destructive: 'bg-destructive',
-                ghost: 'hover:bg-accent',
+                primary: 'bg-primary text-white hover:border-primary',
+                secondary: 'bg-card text-foreground hover:border-primary',
+                destructive: 'bg-card text-destructive hover:border-primary',
+                ghost: 'bg-transparent hover:border-primary',
             },
             size: {
-                default: 'h-11 px-4 py-2 rounded-lg',
-                sm: 'h-9 rounded-md px-3',
-                lg: 'h-12 rounded-lg px-8',
-                icon: 'h-10 w-10 rounded-lg',
+                default: 'text-base',
+                sm: 'text-sm',
+                lg: 'text-lg',
+                icon: 'h-10 w-10',
             },
         },
         defaultVariants: {
@@ -126,7 +126,7 @@ const Button = React.forwardRef<React.ElementRef<typeof Pressable>, ButtonProps>
                     buttonVariants({ variant, size, className }),
                     isWeb && 'cursor-pointer transition-colors',
                     isWeb && !isDisabled && variant === 'primary' && 'hover:bg-primary/90 bg-primary',
-                    isWeb && !isDisabled && variant === 'secondary' && 'hover:bg-accent',
+                    isWeb && !isDisabled && variant === 'secondary' && '',
                     isWeb && !isDisabled && variant === 'destructive' && 'hover:bg-destructive/90',
                 )}
                 style={[

@@ -3,6 +3,68 @@ export type Json = string | number | boolean | null | { [key: string]: Json | un
 export type Database = {
     public: {
         Tables: {
+            companies: {
+                Row: {
+                    created_at: string;
+                    id: string;
+                    name: string;
+                    owner_id: string;
+                    updated_at: string;
+                };
+                Insert: {
+                    created_at?: string;
+                    id?: string;
+                    name: string;
+                    owner_id: string;
+                    updated_at?: string;
+                };
+                Update: {
+                    created_at?: string;
+                    id?: string;
+                    name?: string;
+                    owner_id?: string;
+                    updated_at?: string;
+                };
+                Relationships: [];
+            };
+            company_employees: {
+                Row: {
+                    company_id: string;
+                    created_at: string;
+                    employee_name: string | null;
+                    id: string;
+                    is_manager: boolean;
+                    updated_at: string;
+                    user_id: string;
+                };
+                Insert: {
+                    company_id: string;
+                    created_at?: string;
+                    employee_name?: string | null;
+                    id?: string;
+                    is_manager?: boolean;
+                    updated_at?: string;
+                    user_id: string;
+                };
+                Update: {
+                    company_id?: string;
+                    created_at?: string;
+                    employee_name?: string | null;
+                    id?: string;
+                    is_manager?: boolean;
+                    updated_at?: string;
+                    user_id?: string;
+                };
+                Relationships: [
+                    {
+                        foreignKeyName: 'company_employees_company_id_fkey';
+                        columns: ['company_id'];
+                        isOneToOne: false;
+                        referencedRelation: 'companies';
+                        referencedColumns: ['id'];
+                    },
+                ];
+            };
             coupon_redemptions: {
                 Row: {
                     cost_in_points: number;
@@ -284,6 +346,7 @@ export type Database = {
             food_trucks: {
                 Row: {
                     address: string | null;
+                    company_id: string;
                     created_at: string;
                     description: string | null;
                     facebook_url: string;
@@ -302,6 +365,7 @@ export type Database = {
                 };
                 Insert: {
                     address?: string | null;
+                    company_id: string;
                     created_at?: string;
                     description?: string | null;
                     facebook_url?: string;
@@ -320,6 +384,7 @@ export type Database = {
                 };
                 Update: {
                     address?: string | null;
+                    company_id?: string;
                     created_at?: string;
                     description?: string | null;
                     facebook_url?: string;
@@ -336,7 +401,15 @@ export type Database = {
                     user_id?: string;
                     website_url?: string;
                 };
-                Relationships: [];
+                Relationships: [
+                    {
+                        foreignKeyName: 'food_trucks_company_id_fkey';
+                        columns: ['company_id'];
+                        isOneToOne: false;
+                        referencedRelation: 'companies';
+                        referencedColumns: ['id'];
+                    },
+                ];
             };
             interested_individuals: {
                 Row: {
@@ -874,6 +947,22 @@ export type Database = {
                     geom2: unknown;
                 };
                 Returns: boolean;
+            };
+            add_company_employee: {
+                Args: {
+                    _company_id: string;
+                    _email: string;
+                    _is_manager: boolean;
+                    _employee_name: string;
+                };
+                Returns: {
+                    id: string;
+                    user_id: string;
+                    is_manager: boolean;
+                    employee_name: string;
+                    email: string;
+                    user_metadata: Json;
+                }[];
             };
             addauth: {
                 Args: {
@@ -1478,6 +1567,20 @@ export type Database = {
                     '': string;
                 };
                 Returns: unknown;
+            };
+            get_company_employees: {
+                Args: {
+                    company_id_input: string;
+                };
+                Returns: {
+                    id: string;
+                    company_id: string;
+                    user_id: string;
+                    is_manager: boolean;
+                    created_at: string;
+                    updated_at: string;
+                    auth_user: Json;
+                }[];
             };
             get_food_trucks_within_distance: {
                 Args: {

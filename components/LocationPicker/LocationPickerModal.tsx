@@ -42,6 +42,10 @@ export const LocationPickerModal = () => {
             <Text>Location Picker Modal</Text>
             <GooglePlacesAutocomplete
                 placeholder="Search"
+                requestUrl={{
+                    url: 'https://maps.googleapis.com/maps/api',
+                    useOnPlatform: 'web',
+                }}
                 onPress={async (data, details = null) => {
                     // 'details' is provided when fetchDetails = true
                     const geolocation = await getGeolocation(data.description);

@@ -1,6 +1,7 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 
 import { UserAtomState, useUserAtom } from '~/atoms/AuthentictionAtoms';
+import { useSelectedCompany } from '~/atoms/CompanyAtoms';
 import { supabaseClient } from '~/clients/supabase';
 import { Database } from '~/types/supabaseTypes';
 
@@ -15,14 +16,20 @@ interface UpsertTruckOptions {
     onSuccess?: () => void;
 }
 
-export const useGetTrucksForCurrentUser = () => {
+export const useGetTrucksForCurrentCompany = () => {
+    const [selectedCompany] = useSelectedCompany();
     return useQuery({
-        queryKey: ['trucks', 'user'],
+        queryKey: ['trucks', selectedCompany?.id],
         queryFn: async () => {
-            const { data: trucks, error } = await supabaseClient.from('food_trucks').select(`
+            if (!selectedCompany?.id) throw new Error('Company ID is required');
+
+            const { data: trucks, error } = await supabaseClient
+                .from('food_trucks')
+                .select(`
                     *,
                     cuisine_types:food_truck_cuisine_types(cuisine_types(*))
-                `);
+                `)
+                .eq('company_id', selectedCompany?.id);
 
             if (error) {
                 throw error;
@@ -30,10 +37,12 @@ export const useGetTrucksForCurrentUser = () => {
 
             return trucks as Truck[];
         },
+        enabled: !!selectedCompany?.id,
     });
 };
 
-export const useUpsertTruckForCurrentUser = (options?: UpsertTruckOptions) => {
+export const useUpsertTruckForCurrentCompany = (options?: UpsertTruckOptions) => {
+    const [selectedCompany] = useSelectedCompany();
     const queryClient = useQueryClient();
 
     return useMutation({
@@ -41,10 +50,11 @@ export const useUpsertTruckForCurrentUser = (options?: UpsertTruckOptions) => {
             cuisineTypeIds,
             ...truckData
         }: TruckInsert & { cuisineTypeIds?: string[] }) => {
+            if (!selectedCompany?.id) throw new Error('Company ID is required');
             // First, upsert the truck
             const { data: truck, error: truckError } = await supabaseClient
                 .from('food_trucks')
-                .upsert(truckData)
+                .upsert({ ...truckData, company_id: selectedCompany?.id })
                 .select()
                 .single();
 
@@ -80,7 +90,7 @@ export const useUpsertTruckForCurrentUser = (options?: UpsertTruckOptions) => {
         onSuccess: (data) => {
             // Invalidate and refetch trucks query
             queryClient.invalidateQueries({ queryKey: ['trucks'] });
-            queryClient.invalidateQueries({ queryKey: ['trucks', 'user'] });
+            queryClient.invalidateQueries({ queryKey: ['trucks', selectedCompany?.id] });
             queryClient.invalidateQueries({ queryKey: ['truck', data.id] });
             options?.onSuccess?.();
         },
@@ -119,15 +129,23 @@ export const useDeleteTruckForCurrentUser = ({
     });
 };
 
-const deleteMenu = async (menuId: string, truckId: string, user: UserAtomState) => {
-    if (!user?.id) throw new Error('User ID is required');
-    const { error } = await supabaseClient
+const deleteMenu = async (menuId: string, truckId: string) => {
+    console.log('Deleting menu from database:', { menuId, truckId });
+    const { data, error } = await supabaseClient
         .from('menus')
         .delete()
+        .eq('id', menuId)
         .eq('food_truck_id', truckId)
-        .eq('id', menuId);
-    if (error) throw error;
-    return { success: true };
+        .select()
+        .single();
+    
+    if (error) {
+        console.error('Error deleting menu:', error);
+        throw error;
+    }
+    
+    console.log('Menu deleted successfully:', data);
+    return data;
 };
 
 export const useDeleteMenuForCurrentUser = () => {
@@ -135,10 +153,12 @@ export const useDeleteMenuForCurrentUser = () => {
     const queryClient = useQueryClient();
     return useMutation({
         mutationFn: ({ menuId, truckId }: { menuId: string; truckId: string }) => {
-            return deleteMenu(menuId, truckId, user);
+            return deleteMenu(menuId, truckId);
         },
         onSuccess: (_data, variables) => {
             queryClient.invalidateQueries({ queryKey: ['truck', variables.truckId] });
+            queryClient.invalidateQueries({ queryKey: ['trucks'] });
+            queryClient.invalidateQueries({ queryKey: ['menu', variables.menuId] });
         },
     });
 };
@@ -146,7 +166,6 @@ export const useDeleteMenuForCurrentUser = () => {
 const deleteMenuSection = async (
     menuSectionId: string,
     menuId: string,
-    truckId: string,
     user: UserAtomState
 ) => {
     if (!user?.id) throw new Error('User ID is required');
@@ -172,7 +191,7 @@ export const useDeleteMenuSectionForCurrentUser = () => {
             menuId: string;
             truckId: string;
         }) => {
-            return deleteMenuSection(menuSectionId, menuId, truckId, user);
+            return deleteMenuSection(menuSectionId, menuId, user);
         },
         onSuccess: (_data, variables) => {
             queryClient.invalidateQueries({ queryKey: ['truck', variables.truckId] });
@@ -183,7 +202,6 @@ export const useDeleteMenuSectionForCurrentUser = () => {
 const deleteMenuItem = async (
     menuItemId: string,
     menuSectionId: string,
-    truckId: string,
     user: UserAtomState
 ) => {
     if (!user?.id) throw new Error('User ID is required');
@@ -203,13 +221,12 @@ export const useDeleteMenuItemForCurrentUser = () => {
         mutationFn: ({
             menuItemId,
             menuSectionId,
-            truckId,
         }: {
             menuItemId: string;
             menuSectionId: string;
             truckId: string;
         }) => {
-            return deleteMenuItem(menuItemId, menuSectionId, truckId, user);
+            return deleteMenuItem(menuItemId, menuSectionId, user);
         },
         onSuccess: (_data, variables) => {
             queryClient.invalidateQueries({ queryKey: ['truck', variables.truckId] });
@@ -226,13 +243,10 @@ interface MenuData {
 }
 
 export const useUpsertMenuForCurrentUser = () => {
-    const [user] = useUserAtom();
     const queryClient = useQueryClient();
 
     return useMutation({
         mutationFn: async ({ menuData, truckId }: { menuData: MenuData; truckId: string }) => {
-            if (!user?.id) throw new Error('User ID is required');
-
             // First, upsert the menu
             const { data: menu, error: menuError } = await supabaseClient
                 .from('menus')
