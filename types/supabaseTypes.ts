@@ -1169,6 +1169,39 @@ export type Database = {
                 };
                 Returns: boolean;
             };
+            events_in_view_with_day: {
+                Args: {
+                    min_lng: number;
+                    max_lng: number;
+                    min_lat: number;
+                    max_lat: number;
+                    day_start: string;
+                    day_end: string;
+                };
+                Returns: {
+                    event_id: string;
+                    event_title: string;
+                    event_description: string;
+                    event_start: string;
+                    event_end: string;
+                    event_address: string;
+                    event_location_desc: string;
+                    event_location: unknown;
+                    event_created_at: string;
+                    event_updated_at: string;
+                    event_food_truck_id: string;
+                    eft_created_at: string;
+                    food_truck_id: string;
+                    food_truck_name: string;
+                    food_truck_description: string;
+                    food_truck_address: string;
+                    food_truck_location: unknown;
+                    food_truck_range_of_service: number;
+                    food_truck_joined_date: string;
+                    food_truck_created_at: string;
+                    food_truck_updated_at: string;
+                }[];
+            };
             geography:
                 | {
                       Args: {

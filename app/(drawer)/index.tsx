@@ -10,7 +10,6 @@ import Animated from 'react-native-reanimated';
 
 import { useCuisineTypes } from '~/atoms/GlobalDataAtoms';
 import { supabaseClient } from '~/clients/supabase';
-import MultiSelect from '~/components/MultiSelect';
 import { Button } from '~/components/Button';
 import { Text } from '~/components/nativewindui/Text';
 import { cn } from '~/lib/cn';
@@ -221,7 +220,7 @@ const EmailSignup = () => {
     };
 
     return (
-        <View className="w-full bg-gradient-to-br from-teal-50 to-yellow-50 py-16 md:py-24">
+        <View className="w-full bg-gradient-to-br from-teal-50 to-yellow-50 py-16 shadow-md md:py-24">
             <View className="container mx-auto px-4">
                 {/* Header Section */}
                 <View className="width-full align-center mb-12 text-center">
@@ -329,22 +328,6 @@ export default function Home() {
                 <View className="flex min-h-screen flex-col bg-gradient-to-b from-yellow-100 to-green-100">
                     <View className="flex-grow">
                         <Hero />
-                        <MultiSelect
-                            data={cuisineTypes}
-                            labelField="name"
-                            valueField="id"
-                            value={selectedCuisineTypes}
-                            onChange={(values) => {
-                                setSelectedCuisineTypes(values);
-                            }}
-                            placeholder={
-                                selectedCuisineTypes.length === 0
-                                    ? 'Select a cuisine type'
-                                    : `${selectedCuisineTypes.length} selected`
-                            }
-                            search
-                            searchPlaceholder="Search cuisine type"
-                        />
                         <Features />
                         <EmailSignup />
                         <AboutMe />
