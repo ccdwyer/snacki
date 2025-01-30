@@ -27,6 +27,7 @@ export {
 } from 'expo-router';
 
 import { configureReanimatedLogger, ReanimatedLogLevel } from 'react-native-reanimated';
+import { GluestackUIProvider } from '~/components/ui/gluestack-ui-provider';
 
 // This is the default configuration
 configureReanimatedLogger({
@@ -96,23 +97,28 @@ export default function RootLayout() {
             />
             {/* WRAP YOUR APP WITH ANY ADDITIONAL PROVIDERS HERE */}
             {/* <ExampleProvider> */}
-            <QueryClientProvider>
-                <KeyboardProvider statusBarTranslucent navigationBarTranslucent>
-                    <GestureHandlerRootView style={{ flex: 1 }}>
-                        <BottomSheetModalProvider>
-                            <ActionSheetProvider>
-                                <NavThemeProvider value={NAV_THEME[colorScheme]}>
-                                    <Stack screenOptions={SCREEN_OPTIONS}>
-                                        <Stack.Screen name="(drawer)" options={DRAWER_OPTIONS} />
-                                        <Stack.Screen name="modal" options={MODAL_OPTIONS} />
-                                    </Stack>
-                                    <PortalHost />
-                                </NavThemeProvider>
-                            </ActionSheetProvider>
-                        </BottomSheetModalProvider>
-                    </GestureHandlerRootView>
-                </KeyboardProvider>
-            </QueryClientProvider>
+            <GluestackUIProvider mode="system">
+                <QueryClientProvider>
+                    <KeyboardProvider statusBarTranslucent navigationBarTranslucent>
+                        <GestureHandlerRootView style={{ flex: 1 }}>
+                            <BottomSheetModalProvider>
+                                <ActionSheetProvider>
+                                    <NavThemeProvider value={NAV_THEME[colorScheme]}>
+                                        <Stack screenOptions={SCREEN_OPTIONS}>
+                                            <Stack.Screen
+                                                name="(drawer)"
+                                                options={DRAWER_OPTIONS}
+                                            />
+                                            <Stack.Screen name="modal" options={MODAL_OPTIONS} />
+                                        </Stack>
+                                        <PortalHost />
+                                    </NavThemeProvider>
+                                </ActionSheetProvider>
+                            </BottomSheetModalProvider>
+                        </GestureHandlerRootView>
+                    </KeyboardProvider>
+                </QueryClientProvider>
+            </GluestackUIProvider>
             {/* </ExampleProvider> */}
         </>
     );

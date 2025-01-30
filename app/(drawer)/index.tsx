@@ -14,37 +14,39 @@ import { Button } from '~/components/Button';
 import { Text } from '~/components/nativewindui/Text';
 import { cn } from '~/lib/cn';
 
+import { Text as GsText, Box } from '@gs/index';
+
 const AnimatedView = Animated.createAnimatedComponent(View);
 
 const Hero = () => {
     return (
-        <View className="relative flex h-[48vh] items-center justify-center overflow-hidden">
+        <Box className="relative flex h-[48vh] items-center justify-center overflow-hidden">
             {/* Background Image */}
-            <View className="absolute bottom-0 left-0 right-0 top-0">
+            <Box className="absolute bottom-0 left-0 right-0 top-0">
                 <Image
                     source={require('~/assets/Snacki_Banner.jpg')}
                     alt="Tropical beach with food truck"
                     className="absolute bottom-0 left-0 right-0 top-[-85%]"
                     resizeMode="cover"
                 />
-            </View>
+            </Box>
 
             {/* Overlay */}
-            <View className="absolute inset-0 bg-black/30" />
+            <Box className="absolute inset-0 bg-black/30" />
 
             {/* Content */}
-            <View className="container relative z-10 mx-auto items-center px-4 text-center">
-                <Text className="mr-4 font-[Bubble] text-5xl font-bold text-white drop-shadow-[0_2px_2px_rgba(0,0,0,0.8)] md:text-8xl">
+            <Box className="container relative z-10 mx-auto items-center px-4 text-center">
+                <GsText className="mr-4 font-[Bubble] text-5xl font-bold text-white drop-shadow-[0_2px_2px_rgba(0,0,0,0.8)] md:text-8xl">
                     Snacki
-                </Text>
-                <Text className="mb-12 font-[Bubble] text-2xl text-white drop-shadow-[0_2px_2px_rgba(0,0,0,0.8)] md:text-3xl">
+                </GsText>
+                <GsText className="mb-12 font-[Bubble] text-2xl text-white drop-shadow-[0_2px_2px_rgba(0,0,0,0.8)] md:text-3xl">
                     Your Food Truck's Best Friend
-                </Text>
-                <Text className="mb-8 text-2xl font-semibold text-white drop-shadow-[0_1px_1px_rgba(0,0,0,0.8)] md:text-3xl">
+                </GsText>
+                <GsText className="mb-8 text-2xl font-semibold text-white drop-shadow-[0_1px_1px_rgba(0,0,0,0.8)] md:text-3xl">
                     Manage events, schedules, and loyalty programs - all from one delicious app!
-                </Text>
-            </View>
-        </View>
+                </GsText>
+            </Box>
+        </Box>
     );
 };
 

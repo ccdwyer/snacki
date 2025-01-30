@@ -3,10 +3,11 @@ import { Stack } from 'expo-router';
 import React, { useCallback, useEffect, useState } from 'react';
 import { ActivityIndicator, View } from 'react-native';
 import { Container } from '~/components/Container';
+import { APIProvider } from '@vis.gl/react-google-maps';
 import * as Location from 'expo-location';
 import { useTheme } from '@react-navigation/native';
 
-export default function MapScreen() {
+const WebMapScreen = () => {
     const map = useMap();
     const { colors } = useTheme();
     const [location, setLocation] = useState<Location.LocationObject | null>(null);
@@ -64,4 +65,12 @@ export default function MapScreen() {
             </Container>
         </>
     );
+}
+
+export default function MapScreen() {
+    return (
+        <APIProvider apiKey={process.env.EXPO_PUBLIC_GOOGLE_PLACES_API_KEY ?? ''}>
+            <WebMapScreen />
+        </APIProvider>
+    )
 }

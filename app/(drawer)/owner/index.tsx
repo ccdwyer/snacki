@@ -1,40 +1,46 @@
-import React, { useState, useEffect } from 'react';
-import { View, ScrollView, Pressable, Modal } from 'react-native';
+import { DrawerToggleButton } from '@react-navigation/drawer';
+import { useTheme } from '@react-navigation/native';
+import { Icon } from '@roninoss/icons';
 import { Stack, useRouter } from 'expo-router';
+import React, { useState, useEffect } from 'react';
+import { ScrollView, Pressable, SafeAreaView } from 'react-native';
+
 import { useUserAtom } from '~/atoms/AuthentictionAtoms';
 import { useSelectedCompany } from '~/atoms/CompanyAtoms';
+import { EventListItem } from '~/components/Entities/EventListItem';
 import { ErrorBoundary } from '~/components/Screens/ErrorBoundary';
-import { Text } from '~/components/nativewindui/Text';
+import {
+    Text as GsText,
+    Box,
+    Button as GsButton,
+    Card,
+    ButtonText,
+    Menu,
+} from '~/components/gluestack-ui';
+import { MenuItem, MenuItemLabel } from '~/components/gluestack-ui/menu';
 import {
     useGetUserCompanies,
     useGetCompanyEventsForToday,
     useGetCompanyEventsForTomorrow,
 } from '~/queries/CompanyQueries';
 import { useGetTrucksForCurrentCompany } from '~/queries/UsersTruckQueries';
-import { DrawerToggleButton } from '@react-navigation/drawer';
-import { useTheme } from '@react-navigation/native';
-import { Button } from '~/components/Button';
-import { Icon } from '@roninoss/icons';
-import { EventListItem } from '~/components/Entities/EventListItem';
 
 const EmptyState = () => {
     const router = useRouter();
     return (
-        <View className="flex-1 items-center justify-center gap-4 px-8">
+        <Box className="flex-1 items-center justify-center gap-4 px-8">
             <Icon name="office-building" size={64} color="#9CA3AF" />
-            <Text variant="title2" className="text-center">
-                No Companies Yet
-            </Text>
-            <Text variant="body" color="secondary" className="text-center">
+            <GsText className="text-center">No Companies Yet</GsText>
+            <GsText className="text-center">
                 Create your first company to start managing your food trucks on Snacki
-            </Text>
-            <Button
-                variant="primary"
+            </GsText>
+            <GsButton
+                variant="solid"
                 className="mt-4"
                 onPress={() => router.push('/owner/companies/create')}>
-                <Text>Create Company</Text>
-            </Button>
-        </View>
+                <GsText>Create Company</GsText>
+            </GsButton>
+        </Box>
     );
 };
 
@@ -46,23 +52,16 @@ const TruckCard = ({ truck }: { truck: any }) => {
             onPress={() =>
                 router.push(`/owner/companies/${selectedCompany?.id}/trucks/${truck.id}`)
             }>
-            <View className="overflow-hidden rounded-xl bg-card">
-                <View className="p-4">
-                    <Text variant="heading" className="mb-2">
-                        {truck.name}
-                    </Text>
-                    {truck.description && (
-                        <Text variant="body" className="mb-2 text-foreground/80">
-                            {truck.description}
-                        </Text>
-                    )}
-                    {truck.address && (
-                        <Text variant="caption1" className="text-foreground/80">
-                            📍 {truck.address}
-                        </Text>
-                    )}
-                </View>
-            </View>
+            <Card variant="elevated" className="bg-background-0 shadow-sm">
+                <GsText className="mb-2 font-bold text-purple-700 dark:text-purple-300">
+                    {truck.name}
+                </GsText>
+                {truck.description && (
+                    <GsText variant="body" className="mb-2">
+                        {truck.description}
+                    </GsText>
+                )}
+            </Card>
         </Pressable>
     );
 };
@@ -103,161 +102,147 @@ const CompanyScreen = () => {
                 options={{
                     headerLeft: () => <DrawerToggleButton tintColor={theme.colors.primary} />,
                     headerTitle: () => (
-                        <Pressable
-                            onPress={() => setShowCompanySelector(true)}
-                            className="ios:mt-2 android:mt-2 flex-row items-center justify-center">
-                            <Text variant="heading" className="mr-1">
-                                {selectedCompany?.name || 'Select Company'}
-                            </Text>
-                            <Icon name="chevron-down" size={16} color={theme.colors.primary} />
-                        </Pressable>
+                        <Menu
+                            placement="bottom"
+                            offset={5}
+                            disabledKeys={['Settings']}
+                            className="bg-background-0"
+                            trigger={({ ...triggerProps }) => (
+                                <Pressable
+                                    {...triggerProps}
+                                    className="ios:mt-2 android:mt-2 flex-row items-center justify-center">
+                                    <GsText className="mr-1">
+                                        {selectedCompany?.name || 'Select Company'}
+                                    </GsText>
+                                    <Icon
+                                        name="chevron-down"
+                                        size={16}
+                                        color={theme.colors.primary}
+                                    />
+                                </Pressable>
+                            )}>
+                            {companies?.map((company) => (
+                                <MenuItem
+                                    key={company.id}
+                                    textValue={company.name}
+                                    onPress={() => setSelectedCompany(company)}>
+                                    <MenuItemLabel size="sm">{company.name}</MenuItemLabel>
+                                </MenuItem>
+                            ))}
+
+                            <MenuItem
+                                key="Create Company"
+                                textValue="Create Company"
+                                onPress={() => router.push('/owner/companies/create')}
+                                className="flex-row items-center">
+                                <MenuItemLabel size="sm">+ Create Company</MenuItemLabel>
+                            </MenuItem>
+                        </Menu>
                     ),
                     headerTitleAlign: 'center',
                 }}
             />
-            <Modal
-                visible={showCompanySelector}
-                transparent
-                animationType="fade"
-                onRequestClose={() => setShowCompanySelector(false)}>
-                <Pressable
-                    className="flex-1 items-center justify-center bg-black/50"
-                    onPress={() => setShowCompanySelector(false)}>
-                    <View className="mx-4 w-full max-w-sm overflow-hidden rounded-xl bg-card">
-                        <View className="p-4">
-                            <Text variant="title3" className="mb-4">
-                                Select Company
-                            </Text>
-                            <View className="gap-2">
-                                {companies?.map((company) => (
-                                    <Pressable
-                                        key={company.id}
-                                        className="rounded-lg p-3 active:bg-muted"
-                                        onPress={() => {
-                                            setSelectedCompany(company);
-                                            setShowCompanySelector(false);
-                                        }}>
-                                        <Text>{company.name}</Text>
-                                    </Pressable>
-                                ))}
-                            </View>
-                            <View className="mt-4 h-[1px] bg-border" />
-                            <Pressable
-                                className="mt-4 rounded-lg p-3 active:bg-muted"
-                                onPress={() => {
-                                    router.push('/owner/companies/create');
-                                    setShowCompanySelector(false);
-                                }}>
-                                <Text className="text-primary">Create New Company</Text>
-                            </Pressable>
-                        </View>
-                    </View>
-                </Pressable>
-            </Modal>
-            <ErrorBoundary loading={loading} error={error} dismiss={refetch}>
-                <ScrollView className="flex-1 p-4">
-                    {!selectedCompany ? (
-                        <EmptyState />
-                    ) : (
-                        <View className="gap-6">
-                            {/* Company Actions */}
-                            <View className="ios:flex-col android:flex-col gap-4 web:flex-row">
-                                <Button
-                                    variant="secondary"
-                                    className="flex-1"
-                                    onPress={() =>
-                                        router.push(
-                                            `/owner/companies/${selectedCompany.id}/employees`
-                                        )
-                                    }>
-                                    <Icon
-                                        name="account-multiple"
-                                        size={20}
-                                        color={theme.colors.primary}
-                                    />
-                                    <Text className="ml-2">Employees</Text>
-                                </Button>
-                                <Button
-                                    variant="primary"
-                                    className="flex-1"
-                                    onPress={() =>
-                                        router.push(
-                                            `/owner/companies/${selectedCompany.id}/trucks/create`
-                                        )
-                                    }>
-                                    <Icon name="plus" size={20} color="black" />
-                                    <Text className="ml-2 text-black">Add Truck</Text>
-                                </Button>
-                                <Button
-                                    variant="primary"
-                                    className="flex-1"
-                                    onPress={() =>
-                                        router.push(
-                                            `/owner/companies/${selectedCompany.id}/events/create`
-                                        )
-                                    }>
-                                    <Icon name="plus" size={20} color="black" />
-                                    <Text className="ml-2 text-black">Create Event</Text>
-                                </Button>
-                            </View>
+            <SafeAreaView className="flex-1 bg-background-50">
+                <ErrorBoundary loading={loading} error={error} dismiss={refetch}>
+                    <ScrollView className="flex-1 p-4">
+                        {!selectedCompany ? (
+                            <EmptyState />
+                        ) : (
+                            <Box className="gap-6">
+                                {/* Company Actions */}
+                                <Box className="ios:flex-col android:flex-col gap-4 web:flex-row">
+                                    <GsButton
+                                        variant="outline"
+                                        onPress={() =>
+                                            router.push(
+                                                `/owner/companies/${selectedCompany.id}/employees`
+                                            )
+                                        }>
+                                        <Icon
+                                            name="account-multiple"
+                                            size={20}
+                                            color={theme.colors.primary}
+                                        />
+                                        <ButtonText className="ml-2">Employees</ButtonText>
+                                    </GsButton>
+                                    <Box className="flex-1 flex-row gap-6">
+                                        <GsButton
+                                            variant="outline"
+                                            className="flex-1"
+                                            onPress={() =>
+                                                router.push(
+                                                    `/owner/companies/${selectedCompany.id}/trucks/create`
+                                                )
+                                            }>
+                                            <Icon name="plus" size={20} color="black" />
+                                            <ButtonText className="ml-2">Add Truck</ButtonText>
+                                        </GsButton>
+                                        <GsButton
+                                            variant="outline"
+                                            className="flex-1"
+                                            onPress={() =>
+                                                router.push(
+                                                    `/owner/companies/${selectedCompany.id}/events/create`
+                                                )
+                                            }>
+                                            <Icon name="plus" size={20} color="black" />
+                                            <ButtonText className="ml-2">Create Event</ButtonText>
+                                        </GsButton>
+                                    </Box>
+                                </Box>
 
-                            {/* Today's Events */}
-                            <View>
-                                <Text variant="title2" className="mb-4">
-                                    Today's Events
-                                </Text>
-                                <View className="gap-4">
-                                    {!todayEvents || todayEvents.length === 0 ? (
-                                        <Text className="text-center text-foreground/60">
-                                            No events scheduled for today
-                                        </Text>
-                                    ) : (
-                                        todayEvents.map((event) => (
-                                            <EventListItem key={event.id} event={event} />
-                                        ))
-                                    )}
-                                </View>
-                            </View>
+                                {/* Today's Events */}
+                                <Box>
+                                    <GsText className="mb-4">Today's Events</GsText>
+                                    <Box className="gap-4">
+                                        {!todayEvents || todayEvents.length === 0 ? (
+                                            <GsText className="text-center">
+                                                No events scheduled for today
+                                            </GsText>
+                                        ) : (
+                                            todayEvents.map((event) => (
+                                                <EventListItem key={event.id} event={event} />
+                                            ))
+                                        )}
+                                    </Box>
+                                </Box>
 
-                            {/* Tomorrow's Events */}
-                            <View>
-                                <Text variant="title2" className="mb-4">
-                                    Tomorrow's Events
-                                </Text>
-                                <View className="gap-4">
-                                    {!tomorrowEvents || tomorrowEvents.length === 0 ? (
-                                        <Text className="text-center text-foreground/60">
-                                            No events scheduled for tomorrow
-                                        </Text>
-                                    ) : (
-                                        tomorrowEvents.map((event) => (
-                                            <EventListItem key={event.id} event={event} />
-                                        ))
-                                    )}
-                                </View>
-                            </View>
+                                {/* Tomorrow's Events */}
+                                <Box>
+                                    <GsText className="mb-4">Tomorrow's Events</GsText>
+                                    <Box className="gap-4">
+                                        {!tomorrowEvents || tomorrowEvents.length === 0 ? (
+                                            <GsText className="text-center">
+                                                No events scheduled for tomorrow
+                                            </GsText>
+                                        ) : (
+                                            tomorrowEvents.map((event) => (
+                                                <EventListItem key={event.id} event={event} />
+                                            ))
+                                        )}
+                                    </Box>
+                                </Box>
 
-                            {/* Trucks List */}
-                            <View>
-                                <Text variant="title2" className="mb-4">
-                                    Food Trucks
-                                </Text>
-                                <View className="gap-4">
-                                    {!trucks || trucks.length === 0 ? (
-                                        <Text className="text-center text-foreground/60">
-                                            No food trucks yet. Create one to get started!
-                                        </Text>
-                                    ) : (
-                                        trucks.map((truck) => (
-                                            <TruckCard key={truck.id} truck={truck} />
-                                        ))
-                                    )}
-                                </View>
-                            </View>
-                        </View>
-                    )}
-                </ScrollView>
-            </ErrorBoundary>
+                                {/* Trucks List */}
+                                <Box>
+                                    <GsText className="mb-4">Food Trucks</GsText>
+                                    <Box className="gap-4">
+                                        {!trucks || trucks.length === 0 ? (
+                                            <GsText className="text-center">
+                                                No food trucks yet. Create one to get started!
+                                            </GsText>
+                                        ) : (
+                                            trucks.map((truck) => (
+                                                <TruckCard key={truck.id} truck={truck} />
+                                            ))
+                                        )}
+                                    </Box>
+                                </Box>
+                            </Box>
+                        )}
+                    </ScrollView>
+                </ErrorBoundary>
+            </SafeAreaView>
         </>
     );
 };

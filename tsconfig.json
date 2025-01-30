@@ -1,25 +1,20 @@
 {
-  "extends": "expo/tsconfig.base",
-  "compilerOptions": {
-    "strict": true,
-    "baseUrl": ".",
-    "paths": {
-      "~/*": [
-        "./*"
-      ],
-      "@/*": [
-        "./*"
-      ],
-      "tailwind.config": [
-        "./tailwind.config.js"
-      ]
-    }
-  },
-  "include": [
-    "**/*.ts",
-    "**/*.tsx",
-    "nativewind-env.d.ts",
-    ".expo/types/**/*.ts",
-    "expo-env.d.ts"
-  ]
+    "extends": "expo/tsconfig.base",
+    "compilerOptions": {
+        "strict": true,
+        "baseUrl": ".",
+        "paths": {
+            "~/*": ["./*"],
+            "@/*": ["./*"],
+            "@gs/*": ["./components/gluestack-ui/*"],
+            "tailwind.config": ["./tailwind.config.js"]
+        }
+    },
+    "include": [
+        "**/*.ts",
+        "**/*.tsx",
+        "nativewind-env.d.ts",
+        ".expo/types/**/*.ts",
+        "expo-env.d.ts"
+    ]
 }

@@ -1,9 +1,8 @@
 import { useTheme } from '@react-navigation/native';
 import { Icon } from '@roninoss/icons';
 import React from 'react';
-import { View, Image } from 'react-native';
 
-import { Text } from '~/components/nativewindui/Text';
+import { Box, Image, Text, HStack, VStack, Card } from '~/components/gluestack-ui';
 import { Truck } from '~/types/Truck';
 
 interface FoodTruckListItemProps {
@@ -13,29 +12,32 @@ interface FoodTruckListItemProps {
 export const FoodTruckListItem: React.FC<FoodTruckListItemProps> = ({ truck }) => {
     const theme = useTheme();
     return (
-        <View className="mb-4 w-60">
-            <View className="mb-2 aspect-video w-full">
+        <Card variant="elevated" className="mb-4 w-60">
+            <Box className="mb-2 aspect-video w-full">
                 <Image
                     source={{ uri: 'https://picsum.photos/200/300' }}
                     className="h-full rounded-lg"
+                    alt={`${truck.name} food truck`}
                 />
-            </View>
-            <View className="flex-row justify-between">
-                <View>
-                    <Text variant="heading">{truck.name}</Text>
-                    <Text variant="caption1">
+            </Box>
+            <HStack className="justify-between">
+                <VStack>
+                    <Text className="text-lg font-bold">{truck.name}</Text>
+                    <Text className="text-foreground/80 text-sm">
                         {truck.rating} ⭐️ ({truck.ratingCount})
                     </Text>
-                </View>
-                <View className="items-end">
+                </VStack>
+                <VStack className="items-end">
                     <Icon
                         name={truck.isFavorite ? 'heart' : 'heart-outline'}
                         size={24}
                         color={truck.isFavorite ? theme.colors.primary : theme.colors.text}
                     />
-                    <Text variant="caption1">{Math.round(Math.random() * 10)} mi</Text>
-                </View>
-            </View>
-        </View>
+                    <Text className="text-foreground/80 text-sm">
+                        {Math.round(Math.random() * 10)} mi
+                    </Text>
+                </VStack>
+            </HStack>
+        </Card>
     );
 };

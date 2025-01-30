@@ -10,11 +10,15 @@ export const ErrorBoundary = ({
     error,
     dismiss,
     loading,
+    isEmpty,
+    EmptyState,
 }: {
     children: React.ReactNode;
     error?: Error | null;
     dismiss?: () => void;
     loading?: boolean;
+    isEmpty?: boolean;
+    EmptyState?: React.ReactNode;
 }) => {
     if (loading) {
         return (
@@ -25,6 +29,9 @@ export const ErrorBoundary = ({
     }
 
     if (!error) {
+        if (isEmpty) {
+            return <>{EmptyState}</>;
+        }
         return <>{children}</>;
     }
 
@@ -40,11 +47,7 @@ export const ErrorBoundary = ({
             <Text variant="body" className="mt-[-8]">
                 {error?.message}
             </Text>
-            <Button 
-                variant="primary" 
-                className="mt-8" 
-                onPress={() => dismiss?.()}
-            >
+            <Button variant="primary" className="mt-8" onPress={() => dismiss?.()}>
                 <Text className="font-bold">Try Again</Text>
             </Button>
         </View>
