@@ -10,7 +10,8 @@
         "format": "eslint \"**/*.{js,jsx,ts,tsx}\" --fix && prettier \"**/*.{js,jsx,ts,tsx,json}\" --write",
         "web": "expo start --web",
         "deploy-web": "expo export -p web && netlify deploy --prod --dir dist",
-        "generate-types": "./generate_types.sh"
+        "generate-types": "./generate_types.sh",
+        "eas-build-pre-install": "corepack enable"
     },
     "dependencies": {
         "@expo-google-fonts/permanent-marker": "^0.2.3",
@@ -96,5 +97,6 @@
         "extends": "universe/native",
         "root": true
     },
-    "private": true
+    "private": true,
+    "packageManager": "yarn@4.6.0"
 }

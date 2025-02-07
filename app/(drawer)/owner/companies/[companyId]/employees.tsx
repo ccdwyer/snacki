@@ -42,7 +42,8 @@ const EmployeeCard = ({ employee }: { employee: any }) => {
                 </View>
                 <View className="flex-1">
                     <Text variant="heading" className="mb-1">
-                        {employee.auth_user.user_metadata.first_name} {employee.auth_user.user_metadata.last_name}
+                        {employee.auth_user.user_metadata.first_name}{' '}
+                        {employee.auth_user.user_metadata.last_name}
                     </Text>
                     <Text variant="caption1" className="text-foreground/60">
                         {employee.auth_user.email}
@@ -70,6 +71,7 @@ const CompanyEmployeesScreen = () => {
             <Stack.Screen
                 options={{
                     title: 'Employees',
+                    headerBackTitle: 'Back',
                     headerRight: () => (
                         <Button
                             variant="ghost"

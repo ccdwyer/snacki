@@ -7,7 +7,12 @@ export default function CreateMenu() {
 
     return (
         <>
-            <Stack.Screen options={{ title: 'Update Food Truck' }} />
+            <Stack.Screen
+                options={{
+                    title: 'Create Menu',
+                    headerBackTitle: 'Back',
+                }}
+            />
             <MenuFormScreen mode="create" truckId={truckId as string} />
         </>
     );

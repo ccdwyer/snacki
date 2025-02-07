@@ -1,59 +1,59 @@
 {
-  "cesVersion": "2.12.1",
-  "projectName": "snacki",
-  "packages": [
-    {
-      "name": "expo-router",
-      "type": "navigation",
-      "options": {
-        "type": "drawer + tabs"
-      }
+    "cesVersion": "2.12.1",
+    "projectName": "snacki",
+    "packages": [
+        {
+            "name": "expo-router",
+            "type": "navigation",
+            "options": {
+                "type": "drawer + tabs"
+            }
+        },
+        {
+            "name": "nativewindui",
+            "type": "styling",
+            "options": {
+                "selectedComponents": [
+                    "action-sheet",
+                    "activity-indicator",
+                    "activity-view",
+                    "avatar",
+                    "bottom-sheet",
+                    "date-picker",
+                    "picker",
+                    "progress-indicator",
+                    "ratings-indicator",
+                    "slider",
+                    "text",
+                    "toggle"
+                ]
+            }
+        },
+        {
+            "name": "zustand",
+            "type": "state-management"
+        },
+        {
+            "name": "supabase",
+            "type": "authentication"
+        }
+    ],
+    "flags": {
+        "noGit": false,
+        "noInstall": false,
+        "overwrite": false,
+        "importAlias": true,
+        "packageManager": "yarn",
+        "eas": false
     },
-    {
-      "name": "nativewindui",
-      "type": "styling",
-      "options": {
-        "selectedComponents": [
-          "action-sheet",
-          "activity-indicator",
-          "activity-view",
-          "avatar",
-          "bottom-sheet",
-          "date-picker",
-          "picker",
-          "progress-indicator",
-          "ratings-indicator",
-          "slider",
-          "text",
-          "toggle"
-        ]
-      }
+    "packageManager": {
+        "type": "yarn",
+        "version": "4.6.0"
     },
-    {
-      "name": "zustand",
-      "type": "state-management"
-    },
-    {
-      "name": "supabase",
-      "type": "authentication"
+    "os": {
+        "type": "Darwin",
+        "platform": "darwin",
+        "arch": "arm64",
+        "kernelVersion": "23.6.0"
     }
-  ],
-  "flags": {
-    "noGit": false,
-    "noInstall": false,
-    "overwrite": false,
-    "importAlias": true,
-    "packageManager": "npm",
-    "eas": false
-  },
-  "packageManager": {
-    "type": "npm",
-    "version": "10.9.2"
-  },
-  "os": {
-    "type": "Darwin",
-    "platform": "darwin",
-    "arch": "arm64",
-    "kernelVersion": "23.6.0"
-  }
 }

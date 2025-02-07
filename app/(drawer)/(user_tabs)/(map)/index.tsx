@@ -1,4 +1,4 @@
-import { Map, useMap } from '@vis.gl/react-google-maps';
+import { APIProvider, Map, useMap } from '@vis.gl/react-google-maps';
 import { Stack } from 'expo-router';
 import React, { useCallback, useEffect, useState } from 'react';
 import { ActivityIndicator, View } from 'react-native';
@@ -6,7 +6,7 @@ import { Container } from '~/components/Container';
 import * as Location from 'expo-location';
 import { useTheme } from '@react-navigation/native';
 
-export default function MapScreen() {
+export function MapScreen() {
     const map = useMap();
     const { colors } = useTheme();
     const [location, setLocation] = useState<Location.LocationObject | null>(null);
@@ -65,3 +65,13 @@ export default function MapScreen() {
         </>
     );
 }
+
+const MapScreenWrapper = () => {
+    return (
+        <APIProvider apiKey={process.env.EXPO_PUBLIC_GOOGLE_PLACES_API_KEY ?? ''}>
+            <MapScreen />
+        </APIProvider>
+    );
+};
+
+export default MapScreenWrapper;

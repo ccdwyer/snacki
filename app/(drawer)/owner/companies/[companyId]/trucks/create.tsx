@@ -5,7 +5,12 @@ import TruckFormScreen from '~/components/Screens/TruckFormScreen';
 export default function TruckForm() {
     return (
         <>
-            <Stack.Screen options={{ title: 'Create Food Truck' }} />
+            <Stack.Screen
+                options={{
+                    title: 'Create Food Truck',
+                    headerBackTitle: 'Back',
+                }}
+            />
             <TruckFormScreen mode="create" />
         </>
     );

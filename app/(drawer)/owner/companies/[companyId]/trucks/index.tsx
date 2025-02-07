@@ -32,11 +32,14 @@ export default function TruckList() {
                 <Stack.Screen
                     options={{
                         title: 'My Food Trucks',
+                        headerBackTitle: 'Back',
                         headerRight: () => (
                             <Button
                                 variant="ghost"
                                 className="mr-2"
-                                onPress={() => router.push(`/owner/companies/${companyId}/trucks/create`)}>
+                                onPress={() =>
+                                    router.push(`/owner/companies/${companyId}/trucks/create`)
+                                }>
                                 <Icon name="plus" size={24} color={colors.primary} />
                             </Button>
                         ),
@@ -60,14 +63,19 @@ export default function TruckList() {
                             <Button
                                 variant="primary"
                                 className="mt-4"
-                                onPress={() => router.push(`/owner/companies/${companyId}/trucks/create`)}>
+                                onPress={() =>
+                                    router.push(`/owner/companies/${companyId}/trucks/create`)
+                                }>
                                 <Text>Create Food Truck</Text>
                             </Button>
                         </View>
                     ) : (
                         <View className="flex-1 gap-4 p-4">
                             {trucks.map((truck) => (
-                                <Link key={truck.id} href={`/owner/companies/${companyId}/trucks/${truck.id}`} asChild>
+                                <Link
+                                    key={truck.id}
+                                    href={`/owner/companies/${companyId}/trucks/${truck.id}`}
+                                    asChild>
                                     <Pressable>
                                         <View className="rounded-lg border border-border bg-card p-4">
                                             <Text variant="heading" className="mb-1">
@@ -76,7 +84,7 @@ export default function TruckList() {
                                             {truck.description && (
                                                 <Text
                                                     variant="body"
-                                                    className="text-foreground/80 mb-2">
+                                                    className="mb-2 text-foreground/80">
                                                     {truck.description}
                                                 </Text>
                                             )}

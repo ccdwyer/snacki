@@ -234,6 +234,7 @@ export default function MenuFormScreen({ mode, truckId, menuId }: MenuFormProps)
             <Stack.Screen
                 options={{
                     title: mode === 'create' ? 'Create Menu' : 'Update Menu',
+                    headerBackTitle: 'Back',
                     headerRight: () => (
                         <Button
                             variant="ghost"

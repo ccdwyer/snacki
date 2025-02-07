@@ -7,7 +7,9 @@
         "preview": {
             "distribution": "internal"
         },
-        "production": {},
+        "production": {
+            "autoIncrement": true
+        },
         "development-simulator": {
             "developmentClient": true,
             "distribution": "internal",

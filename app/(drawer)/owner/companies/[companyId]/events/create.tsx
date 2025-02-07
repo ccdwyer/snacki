@@ -12,7 +12,7 @@ export default function CreateEventScreen() {
             <Stack.Screen
                 options={{
                     title: 'Create Event',
-                    headerBackTitle: 'Events',
+                    headerBackTitle: 'Back',
                 }}
             />
             <EventFormScreen onSuccess={() => router.back()} />

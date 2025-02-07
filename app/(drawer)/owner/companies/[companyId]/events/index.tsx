@@ -6,7 +6,12 @@ import { ScreenContent } from '~/components/ScreenContent';
 export default function EventForm() {
     return (
         <>
-            <Stack.Screen options={{ title: 'Truck List' }} />
+            <Stack.Screen
+                options={{
+                    title: 'Truck List',
+                    headerBackTitle: 'Back',
+                }}
+            />
             <Container>
                 <ScreenContent
                     path="app/(drawer)/(truck_management_tabs)/(trucks)/index.tsx"

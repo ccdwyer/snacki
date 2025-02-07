@@ -8,7 +8,12 @@ export default function UpdateTruck() {
 
     return (
         <>
-            <Stack.Screen options={{ title: 'Update Food Truck' }} />
+            <Stack.Screen
+                options={{
+                    title: 'Update Food Truck',
+                    headerBackTitle: 'Back',
+                }}
+            />
             <TruckFormScreen mode="update" truckId={truckId} />
         </>
     );

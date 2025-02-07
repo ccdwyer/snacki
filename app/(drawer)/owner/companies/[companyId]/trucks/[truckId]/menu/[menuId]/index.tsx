@@ -13,6 +13,7 @@ export default function TruckDetails() {
             <Stack.Screen
                 options={{
                     title: 'Menu Details',
+                    headerBackTitle: 'Back',
                     headerRight: () => (
                         <Button
                             variant="ghost"
